@@ -10,6 +10,26 @@ OO-LD Schema aims to connect the structural modelling of objects and subobjects 
 
 ## Quickstart
 
+A minimal example:
+```json
+{
+  "@context": {
+    "schema": "http://schema.org/",
+    "name": "schema:name"
+  },
+  "title": "Person",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "First and Last name",
+    }
+  }
+}
+```
+
+You can explore this in the [interactive playground](https://oo-ld.github.io/playground/)
+
 Schemas can be aggregated using both the JSON-SCHEMA `$ref` and the JSON-LD remote `@context` pointing the same resource.
 
 ```mermaid
@@ -40,6 +60,10 @@ classDiagram
 
     OOLD_Class_B <-- OOLD_Instance_B: type
 ```
+
+You can read how this is implemented in OpenSemanticWorld/Lab in the [introduction](https://opensemantic.world/wiki/Item:OSWdb485a954a88465287b341d2897a84d6) and [schema documentation draft](https://opensemantic.world/wiki/Item:OSWab674d663a5b472f838d8e1eb43e6784).
+
+More details tbd...
 
 ## Tooling
 * General
