@@ -81,7 +81,8 @@ More details tbd...
 
 ![](https://opensemantic.world/wiki/Special:Redirect/file/OSW01a9133879e94df19a8e617d91d28f39.drawio.svg)
 > OO-LD as bridge between linked data and the general software domain
-
+> 
+### Schema
 | Name      | Description |
 | ----------- | ----------- |
 | [JSON-SCHEMA](https://json-schema.org/) | Base of this work. Does not include linked data concepts. |
@@ -92,4 +93,10 @@ More details tbd...
 | [dlite](https://github.com/SINTEF/dlite) | Custom schema language focussed on scientific data |
 | [NOMAD](http://nomad-lab.eu/prod/v1/staging/docs/schemas/basics.html) | Custom schema language focussed on scientific data |
 | [OTTR](https://ottr.xyz/)   | Mixture of custom template and schema language. Limited toolset to convert from/to other formats. |
+| [BatteryKnowledgeGraph](https://github.com/BIG-MAP/BatteryKnowledgeGraph) | Battery related linked data set |
+
+### Data
+| Name      | Description |
+| ----------- | ----------- |
+| [BatteryKnowledgeGraph](https://github.com/BIG-MAP/BatteryKnowledgeGraph) | Battery related linked data set |
 
