@@ -1,5 +1,5 @@
 # OO-LD Schema
-The Object Oriented Linked Data Schema
+The Object Oriented Linked Data Schema - work in process!
 
 ## Overview
 
@@ -66,6 +66,66 @@ classDiagram
 You can read how this is implemented in OpenSemanticWorld/Lab in the [introduction](https://opensemantic.world/wiki/Item:OSWdb485a954a88465287b341d2897a84d6) and [schema documentation draft](https://opensemantic.world/wiki/Item:OSWab674d663a5b472f838d8e1eb43e6784).
 
 More details tbd...
+
+## Standard extensions
+### JSON-LD
+Current support covers [v1.1] (https://www.w3.org/TR/json-ld/).
+
+#### Multi-Mapping
+JSON-LD allows only a single keyword-IRI mapping (or more precisely, ignores all but the last mapping). Currently there is no way to express that a property has two ids (e. g. with `"label": {"@id": ["schema:name", "skos:prefLabel"]}`, see also [json-ld/json-ld.org#160](https://github.com/json-ld/json-ld.org/issues/160)). As a workaround, an additional context notation is provided: `<property>*(*)` pointing to additional `@id` mappings to provide at least a documentation for alternative options or custom RDF generation.
+
+```json
+{
+    "@context": [
+        {
+            "@version": 1.1,
+            "skos": "https://www.w3.org/TR/skos-reference/",
+            "schema": "https://schema.org/",
+            "label": "skos:prefLabel",
+            "label*": "schema:name",
+            "label**": "..."
+        }
+    ]
+}
+```
+
+### JSON-SCHEMA
+Current support covers [Draft 4] (https://json-schema.org/specification-links#draft-4).
+
+#### Multilanguange support
+Keywords `title` and `description` can be extended with additional keywords `title*` and `description*`, which hold and object with lang-keys (de, en, etc.) pointing to the translated strings.
+Mapping of `title*[lang]` must be provided by schema preprocessing.
+```json
+{
+    "title": "Default Title",
+    "title*": {"en": "Title (en)", "de": "Titel (de)"}
+}
+```
+
+#### Range of properties
+JSON-SCHEMA itself supports linked data only in form of subobject. References to independent external object are just URL-strings without any further restrictions. To express constrains on the type of the object as we know it from OWL and SHACL the keyword `range` is introduced (see also [json-schema-org/json-schema-vocabularies#55](https://github.com/json-schema-org/json-schema-vocabularies/issues/55)). Note: Same as `$ref`, `range` must point to a resolvable resource.
+
+```json
+{
+  "@context": {
+    "schema": "http://schema.org/",
+    "works_for": "schema:worksFor"
+  },
+  "title": "Person",
+  "type": "object",
+  "properties": {
+    "works_for": {
+      "type": "string",
+      "range": "schema:Organization",
+      "description": "IRI pointing to an instance of schema:Organization",
+    }
+  }
+}
+```
+
+#### UI Generation
+Additional keywords defined by [JSON-SCHEMA Editor](https://github.com/json-editor/json-editor), see [Basic features](https://github.com/json-editor/json-editor#readme) and [Further details](https://github.com/json-editor/json-editor/blob/master/README_ADDON.md)
+
 
 ## Tooling
 * General
