@@ -1,0 +1,41 @@
+{
+    "@context": {
+        "emmo": "https://w3id.org/emmo#",
+        "hasNumericalValue": {
+            "@id": "emmo:EMMO_faf79f53_749d_40b2_807c_d34244c192f4"
+        },
+        "hasNumericalPart": {
+            "@id": "emmo:hasNumericalPart",
+            "@type": "@id"
+        },
+        "hasMeasurementUnit": {
+            "@id": "emmo:EMMO_bed1d005_b04e_4a90_94cf_02bc678a8569",
+            "@type": "@id"
+        },
+        "PhysicalQuantity": "emmo:EMMO_02c0621e_a527_4790_8a0f_2bb51973c819",
+        "Real": "emmo:EMMO_18d180e4_5e3e_42f7_820c_e08951223486"
+    },
+    "title": "PhysicalQuantity",
+    "type": "object",
+    "properties": {
+      "@type": {
+        "type": "string",
+        "default": "PhysicalQuantity"
+      },
+      "hasNumericalPart": {
+        "type": "object",
+        "properties": {
+            "@type": {
+                "type": "string",
+                "default": "emmo:Real"
+            },
+            "hasNumericalValue": {
+                "type": "number"
+            }
+        }
+      },
+      "hasMeasurementUnit": {
+        "type": "string"
+      }
+    }
+  }

@@ -1,0 +1,30 @@
+{
+    "@context": {
+        "emmo": "https://w3id.org/emmo#",
+        "echem": "https://w3id.org/emmo/domain/electrochemistry#",
+        "hasObjectiveProperty": {
+            "@id": "emmo:EMMO_0aa934ee_1ad4_4345_8a7f_bc73ec67c7e5",
+            "@type": "@id"
+        },
+        "ActiveMaterial": "echem:electrochemistry_79d1b273-58cd-4be6-a250-434817f7c261",
+        "SpecificCapacity": "echem:electrochemistry_1e3dc60d_dd6b_47d6_8161_70004fc5ee30",
+        "Density": "emmo:EMMO_06448f64_8db6_4304_8b2c_e785dba82044"
+    },
+    "title": "ActiveMaterial",
+    "type": "object",
+    "properties": {
+      "@type": {
+        "type": "string",
+        "default": "ActiveMaterial"
+      },
+      "hasObjectiveProperty": {
+        "type": "object",
+        "properties": {
+            "@type": {
+                "type": "string",
+                "enum": ["SpecificCapacity", "Density"]
+            }
+        }
+      }
+    }
+  }
