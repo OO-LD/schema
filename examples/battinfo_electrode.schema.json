@@ -7,6 +7,10 @@
             "@id": "emmo:EMMO_0aa934ee_1ad4_4345_8a7f_bc73ec67c7e5",
             "@type": "@id"
         },
+        "hasActiveMaterial": {
+            "@id": "echem:electrochemistry_860aa941_5ff9_4452_8a16_7856fad07bee",
+            "@type": "@id"
+        },
         "hasNumericalValue": {
             "@id": "emmo:EMMO_faf79f53_749d_40b2_807c_d34244c192f4"
         },
@@ -20,7 +24,12 @@
         },
         "PhysicalQuantity": "emmo:EMMO_02c0621e_a527_4790_8a0f_2bb51973c819",
         "Real": "emmo:EMMO_18d180e4_5e3e_42f7_820c_e08951223486",
+        "Electrode": "echem:electrochemistry_0f007072-a8dd-4798-b865-1bf9363be627",
         "ActiveMaterial": "echem:electrochemistry_79d1b273-58cd-4be6-a250-434817f7c261",
+        "Mass": "emmo:EMMO_ed4af7ae_63a2_497e_bb88_2309619ea405",
+        "Length": "emmo:EMMO_cd2cd0de_e0cc_4ef1_b27e_2e88db027bac",
+        "Width": "emmo:EMMO_e4de48b1_dabb_4490_ac2b_040f926c64f0",
+        "Thickness": "emmo:EMMO_43003c86_9d15_433b_9789_ee2940920656",
         "SpecificCapacity": "echem:electrochemistry_1e3dc60d_dd6b_47d6_8161_70004fc5ee30",
         "Density": "emmo:EMMO_06448f64_8db6_4304_8b2c_e785dba82044",
         "SpecificSurfaceArea": "echem:electrochemistry_cf54e7c1_f359_4715_b61d_0350b890d597",
@@ -32,12 +41,12 @@
             "@id": "schema:productID"
         }
     },
-    "title": "ActiveMaterial",
+    "title": "Electrode",
     "type": "object",
     "properties": {
       "@type": {
         "type": "string",
-        "default": "ActiveMaterial"
+        "default": "Electrode"
       },
       "manufacturer": {
         "type": "string"
@@ -49,12 +58,12 @@
         "type": "array",
         "anyOf": [
           {
-            "title": "SpecificCapacity",
+            "title": "Mass",
             "properties": {
               "@type": {
                 "type": "string",
-                "const": "SpecificCapacity",
-                "default": "SpecificCapacity"
+                "const": "Mass",
+                "default": "Mass"
               },
               "hasNumericalPart": {
                 "type": "object",
@@ -71,19 +80,19 @@
               "hasMeasurementUnit": {
                 "type": "string",
                 "enum": [
-                  "emmo:MilliAmpereHourPerGram",
-                  "emmo:CoulombPerKilogram"
+                  "emmo:Gram",
+                  "emmo:KiloGram"
                 ]
               }
             }
           },
           {
-            "title": "Density",
+            "title": "Length",
             "properties": {
               "@type": {
                 "type": "string",
-                "const": "Density",
-                "default": "Density"
+                "const": "Length",
+                "default": "Length"
               },
               "hasNumericalPart": {
                 "type": "object",
@@ -100,19 +109,20 @@
               "hasMeasurementUnit": {
                 "type": "string",
                 "enum": [
-                  "emmo:GramPerCubicCentiMeter",
-                  "emmo:KiloGramPerCubicMetre"
+                  "emmo:MilliMetre",
+                  "emmo:CentiMetre",
+                  "emmo:Metre"
                 ]
               }
             }
           },
           {
-            "title": "SpecificSurfaceArea",
+            "title": "Width",
             "properties": {
               "@type": {
                 "type": "string",
-                "const": "SpecificSurfaceArea",
-                "default": "SpecificSurfaceArea"
+                "const": "Width",
+                "default": "Width"
               },
               "hasNumericalPart": {
                 "type": "object",
@@ -129,18 +139,20 @@
               "hasMeasurementUnit": {
                 "type": "string",
                 "enum": [
-                  "emmo:SquareMetrePerGram"
+                  "emmo:MilliMetre",
+                  "emmo:CentiMetre",
+                  "emmo:Metre"
                 ]
               }
             }
           },
           {
-            "title": "TappedDensity",
+            "title": "Thickness",
             "properties": {
               "@type": {
                 "type": "string",
-                "const": "TappedDensity",
-                "default": "TappedDensity"
+                "const": "Thickness",
+                "default": "Thickness"
               },
               "hasNumericalPart": {
                 "type": "object",
@@ -157,13 +169,23 @@
               "hasMeasurementUnit": {
                 "type": "string",
                 "enum": [
-                  "emmo:GramPerCubicCentimetre",
-                  "emmo:KiloGramPerCubicMetre"
+                  "emmo:MilliMetre",
+                  "emmo:CentiMetre",
+                  "emmo:Metre"
                 ]
               }
             }
           }
         ]
+      },
+      "hasActiveMaterial": {
+        "type": "object",
+        "properties": {
+            "@type": {
+                "type": "string",
+                "default": "ActiveMaterial"
+            }
+        }
       }
     }
   }

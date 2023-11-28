@@ -1,0 +1,39 @@
+{
+    "@type": "ActiveMaterial",
+    "manufacturer": "https://ror.org/01f677e56", 
+    "productID": "test_id_12345",
+    "hasObjectiveProperty": [
+        {
+            "@type": "SpecificCapacity",
+            "hasNumericalPart": {
+                "@type": "Real",
+                "hasNumericalValue": 360
+            },
+            "hasMeasurementUnit": "emmo:MilliAmpereHourPerGram"
+        },
+        {
+            "@type": "Density",
+            "hasNumericalPart": {
+                "@type": "Real",
+                "hasNumericalValue": 2240
+            },
+            "hasMeasurementUnit": "emmo:MilliAmpereHourPerGram"
+        },
+        {
+            "@type": "SpecificSurfaceArea",
+            "hasNumericalPart": {
+                "@type": "Real",
+                "hasNumericalValue": 3
+            },
+            "hasMeasurementUnit": "emmo:SquareMetrePerGram"
+        },
+        {
+            "@type": "TappedDensity",
+            "hasNumericalPart": {
+                "@type": "Real",
+                "hasNumericalValue": 1.1
+            },
+            "hasMeasurementUnit": "emmo:GramPerCubicCentiMetre"
+        }
+    ]
+}
