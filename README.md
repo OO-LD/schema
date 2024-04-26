@@ -32,7 +32,7 @@ A minimal example:
 
 You can explore this in the [interactive playground](https://oo-ld.github.io/playground/)
 
-Schemas can be aggregated using both the JSON-SCHEMA `$ref` and the JSON-LD remote `@context` pointing the same resource.
+Please note that **OO-LD schema documents should not be interpreted as JSON-LD documents** because this would apply `@context` on the schema itself. The motivation behind this is to have a single document so schemas can be aggregated using both the JSON-SCHEMA `$ref` and the JSON-LD remote `@context` pointing the same resource.
 
 ```mermaid
 %%{init: {'theme': 'neutral' } }%%
@@ -105,6 +105,10 @@ Mapping of `title*[lang]` must be provided by schema preprocessing.
 #### Range of properties
 JSON-SCHEMA itself supports linked data only in form of subobject. References to independent external object are just URL-strings without any further restrictions. To express constrains on the type of the object as we know it from OWL and SHACL the keyword `range` is introduced (see also [json-schema-org/json-schema-vocabularies#55](https://github.com/json-schema-org/json-schema-vocabularies/issues/55)). Note: Same as `$ref`, `range` must point to a resolvable resource.
 
+##### Draft v0.1:
+
+`range` is an IRI 
+
 ```json
 {
   "@context": {
@@ -122,6 +126,87 @@ JSON-SCHEMA itself supports linked data only in form of subobject. References to
   }
 }
 ```
+
+##### Draft v0.2:
+
+`range` is an OO-LD schema
+
+This will allow the following constellations:
+
+###### Inline type restriction
+```json
+"range": {
+  "@context": {
+    "schema": "http://schema.org/",
+    "type": "@type"
+  },
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "schema:Organization",
+    }
+  }
+}
+```
+
+
+###### Reference to existing schema
+```json
+"range": {
+  "allOf": {
+    "$ref": "Organization.schema.json"
+  }
+}
+```
+
+Full Example:
+
+```json
+{
+  "@context": {
+    "schema": "http://schema.org/",
+    "works_for": "schema:worksFor",
+    "type": "@type"
+  },
+  "$id": "Person.schema.json",
+  "title": "Person",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "schema:Person",
+    }
+    "works_for": {
+      "type": "string",
+      "range": {
+        "allOf": {
+          "$ref": "Organization.schema.json"
+        }
+      },
+      "description": "IRI pointing to an instance of schema:Organization",
+    }
+  }
+}
+```
+
+```json
+{
+  "@context": {
+    "schema": "http://schema.org/",
+    "type": "@type"
+  },
+  "$id": "Organization.schema.json",
+  "title": "Organization",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "schema:Organization",
+    }
+  }
+}
+```
+
 
 #### UI Generation
 Additional keywords defined by [JSON-SCHEMA Editor](https://github.com/json-editor/json-editor), see [Basic features](https://github.com/json-editor/json-editor#readme) and [Further details](https://github.com/json-editor/json-editor/blob/master/README_ADDON.md)
