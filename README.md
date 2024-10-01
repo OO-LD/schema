@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11401726.svg)](https://doi.org/10.5281/zenodo.11401726)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11401726.svg )](https://doi.org/10.5281/zenodo.11401726  )
 
 # OO-LD Schema
 The Object Oriented Linked Data Schema - work in process!
@@ -36,7 +36,7 @@ A minimal example:
 
 You can explore this in the [interactive playground](https://oo-ld.github.io/playground/)
 
-Please note that **OO-LD schema documents should not be interpreted as JSON-LD documents** because this would apply `@context` on the schema itself. The motivation behind this is to have a single document so schemas can be aggregated using both the JSON-SCHEMA `$ref` and the JSON-LD remote `@context` pointing the same resource.
+Please note that **OO-LD schema documents must not be interpreted as JSON-LD documents** because this would apply `@context` on the schema itself. The motivation behind this is to have a single document so schemas can be aggregated using both the JSON-SCHEMA `$ref` and the JSON-LD remote `@context` pointing the same resource.
 
 ```mermaid
 %%{init: {'theme': 'neutral' } }%%
