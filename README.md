@@ -1,7 +1,46 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11401726.svg )](https://doi.org/10.5281/zenodo.11401726  )
 
+- [OO-LD Schema](#oo-ld-schema)
+  - [Overview](#overview)
+  - [Introduction](#introduction)
+    - [Conventions and Terminology](#conventions-and-terminology)
+    - [Design Goals and Rationale](#design-goals-and-rationale)
+      - [Compatibility](#compatibility)
+      - [Expressiveness](#expressiveness)
+      - [Interoperability](#interoperability)
+  - [Basic Concepts](#basic-concepts)
+  - [Composition](#composition)
+  - [Schema Instances](#schema-instances)
+  - [Standard extensions](#standard-extensions)
+    - [JSON-LD](#json-ld)
+      - [Multi-Mapping](#multi-mapping)
+    - [JSON-SCHEMA](#json-schema)
+      - [Multilanguange support](#multilanguange-support)
+      - [Range of properties](#range-of-properties)
+        - [Draft v0.1:](#draft-v01)
+        - [Draft v0.2:](#draft-v02)
+          - [Inline type restriction](#inline-type-restriction)
+          - [Reference to existing schema](#reference-to-existing-schema)
+      - [UI Generation](#ui-generation)
+  - [Code Generation](#code-generation)
+    - [Python](#python)
+  - [Tooling](#tooling)
+  - [IANA Considerations](#iana-considerations)
+    - [Security considerations](#security-considerations)
+  - [Registry](#registry)
+  - [Discussion](#discussion)
+  - [Normative References](#normative-references)
+  - [Informative References](#informative-references)
+- [Appendix](#appendix)
+  - [Related Work](#related-work)
+    - [Schema](#schema)
+    - [Data](#data)
+  - [Mappings](#mappings)
+    - [NOMAD](#nomad)
+    - [Dlite](#dlite)
+
 # OO-LD Schema
-The Object Oriented Linked Data Schema - work in process!
+The Object Oriented Linked Data Schema based on [JSON-LD](#JSONLD11) and [JSON-SCHEMA](#JSONSCHEMA202012) - work in process!
 
 ## Overview
 
@@ -10,11 +49,35 @@ OO-LD Schema aims to connect the structural modelling of objects and subobjects 
 ![](https://opensemantic.world/wiki/Special:Redirect/file/OSW95a74be1e22d4b6e9e4f836127d5915a.drawio.svg)
 > JSON, JSON-SCHEMA and JSON-LD technology stack with [OpenSemanticLab](https://github.com/OpenSemanticLab) as example document store / platform
 
-## Quickstart
+## Introduction
+
+### Conventions and Terminology
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](#RFC2119).
+
+### Design Goals and Rationale
+#### Compatibility
+An OO-LD document is always a valid JSON document. This ensures that all of the standard JSON libraries work seamlessly with OO-LD documents.
+
+An OO-LD instance document is always a valid JSON-LD document. This ensures that all of the standard JSON-LD libraries work seamlessly with OO-LD instance documents.
+
+An OO-LD schema document is always both a valid JSON-SCHEMA document and JSON-LD remote context. This ensures that all of the standard JSON-SCHEMA and JSON-LD libraries work seamlessly with OO-LD schema documents.
+
+#### Expressiveness
+A OO-LD schema document allows the developer to express the syntax of a JSON instance document side by side with its semantics in a single source.
+
+In addition, syntactical and semantic definitions can also be applied to referenced external JSON instance documents. 
+
+This allows to specify well-defined patterns in a directed graph and enables tools relying on a hierarchical object structure to produce data for and consume data from such a graph.
+
+#### Interoperability
+
+OO-LD schema documents allow to specify all information that is needed to automatically transform data between semantically equivalent but syntactically different notations.
+
+## Basic Concepts
 
 If you are not familiar yet with [JSON-SCHEMA](https://json-schema.org/) or [JSON-LD](https://json-ld.org/) you should first have a look at dedicated tutorials like [OSW JSON-SCHEMA Tutorial](https://opensemantic.world/wiki/Item:OSWf4a9514baed04859a4c6c374a7312f10) and [OSW JSON-LD Tutorial](https://opensemantic.world/wiki/Item:OSW911488771ea449a6a34051f8213d7f2f).
 
-The core idea is that an OO-LD document is always both a valid JSON-SCHEMA and a JSON-LD remote context ( != JSON-LD document). In this way a complete OO-LD class / schema hierarchy is consumeable by JSON-SCHEMA-only and JSON-LD-only tools while OO-LD aware tools can provide extended features on top (e.g. UI autocomplete dropdowns for string-IRI fields based e.g. on a SPARQL backend, SHACL shape or JSON-LD frame generation).
+The core idea is that an OO-LD document is always both a valid JSON-SCHEMA and a reference-able JSON-LD remote context as defined in [JSON-LD v1.1 section 3.1](https://www.w3.org/TR/2020/REC-json-ld11-20200716/#the-context) ( != JSON-LD document). In this way a complete OO-LD class / schema hierarchy is consume-able by JSON-SCHEMA-only and JSON-LD-only tools while OO-LD aware tools can provide extended features on top (e.g. UI autocomplete dropdowns for string-IRI fields based e.g. on a SPARQL backend, SHACL shape or JSON-LD frame generation).
 
 A minimal example:
 ```json
@@ -36,7 +99,7 @@ A minimal example:
 
 You can explore this in the [interactive playground](https://oo-ld.github.io/playground/)
 
-Please note that **OO-LD schema documents must not be interpreted as JSON-LD documents** because this would apply `@context` on the schema itself. The motivation behind this is to have a single document so schemas can be aggregated using both the JSON-SCHEMA `$ref` and the JSON-LD remote `@context` pointing the same resource.
+Please note that **OO-LD schema documents MUST NOT be interpreted as JSON-LD documents** because this would apply `@context` on the schema itself. The motivation behind this is to have a single document so schemas can be aggregated using both the JSON-SCHEMA `$ref` and the JSON-LD remote `@context` pointing the same resource.
 
 ```mermaid
 %%{init: {'theme': 'neutral' } }%%
@@ -69,7 +132,111 @@ classDiagram
 
 You can read how this is implemented in OpenSemanticWorld/Lab in the [introduction](https://opensemantic.world/wiki/Item:OSWdb485a954a88465287b341d2897a84d6) and [schema documentation draft](https://opensemantic.world/wiki/Item:OSWab674d663a5b472f838d8e1eb43e6784).
 
-More details tbd...
+## Composition
+
+It MUST NOT be require to further process an OO-LD Schema document in order to interpret it as JSON-LD context. This implies that all occurrences of `$ref` in the schema are reflected in the JSON-LD context. `$ref` within properties of `type: object` MUST be listed as scoped JSON-LD context. `$ref` within all other property types and at the root level of the OO-LD schema MUST be listed at the root level of the JSON-LD context. In case of multiple `$ref` within `allOf` it lies within the responsibility of the importing OO-LD schema to ensure correctness of the merged remote JSON-LD context. 
+This SHOULD NOT be applied to `oneOf` and `anyOf` since conflicts are more likely.
+At any time the importing OO-LD schema can define its own or override the imported JSON-LD context.
+
+```yaml
+"@context"
+  - B.schema.json
+  - P1.schema.json
+  - p1:
+    "@context": P1.schema.json
+  - p2:
+    "@context": 
+      - P2a.schema.json
+      - P2b.schema.json
+  - p3:
+    "@context":
+      keyword_in_P3a: ex:Property1
+      keyword_in_P3b: ex:Property2
+$id: A.schema.json
+allOf:
+  - $ref: B.schema.json
+properties:
+  p0:
+    type: string
+    $ref: P0.schema.json
+  p1:
+    type: object
+    $ref: P1.schema.json
+  p2:
+    type: object
+    allOf:
+      $ref: P2a.schema.json
+      $ref: P2b.schema.json
+  p3:
+    oneOf:
+      $ref: P3a.schema.json
+      $ref: P3b.schema.json
+```
+
+<details>
+  <summary>Full example</summary>
+
+```yaml
+"@context": 
+  name: ex:petName
+$id: Pet.schema.json
+properties:
+  name:
+    type: string
+```
+
+```yaml
+"@context": 
+  name: schema:name
+  pets:
+    "@id": ex:hasPet
+    "@context": Pet.schema.json
+$id: Person.schema.json
+properties:
+  name:
+    type: string
+  pets:
+    type: array
+    items: 
+      $ref: Pet.schema.json
+```
+
+```yaml
+"@context": Person.schema.json
+$schema: Person.schema.json
+name: Max
+pets:
+  - name: Bruno
+```
+
+```yaml
+"@context": 
+  name: ex:name
+  pets:
+    "@id": ex:hasPet
+    "@context":
+      name: ex:petName
+$schema: Person.schema.json
+name: Max
+pets:
+  - name: Bruno
+```
+
+```ttl
+_:b0 <ex:hasPet> _:b1 .
+_:b0 <schema:name> "Max" .
+_:b1 <ex:petName> "Bruno" .
+```
+</details>
+
+## Schema Instances
+https://json-schema.org/draft/2020-12/json-schema-core#name-linking-to-a-schema
+https://json-schema.org/draft/2020-12/json-schema-core#name-the-schema-keyword
+
+```yaml
+"@context": Person.schema.json
+$schema: Person.schema.json
+```
 
 ## Standard extensions
 ### JSON-LD
@@ -77,6 +244,8 @@ Current support covers [v1.1] (https://www.w3.org/TR/json-ld/).
 
 #### Multi-Mapping
 JSON-LD allows only a single keyword-IRI mapping (or more precisely, ignores all but the last mapping). Currently there is no way to express that a property has two ids (e. g. with `"label": {"@id": ["schema:name", "skos:prefLabel"]}`, see also [json-ld/json-ld.org#160](https://github.com/json-ld/json-ld.org/issues/160)). As a workaround, an additional context notation is provided: `<property>*(*)` pointing to additional `@id` mappings to provide at least a documentation for alternative options or custom RDF generation.
+
+see also: https://github.com/OO-LD/schema/issues/12
 
 ```json
 {
@@ -89,9 +258,24 @@ JSON-LD allows only a single keyword-IRI mapping (or more precisely, ignores all
             "label*": "schema:name",
             "label**": "..."
         }
-    ]
+    ],
+    "label": "test"
 }
 ```
+
+Default JSON-LD processing would only interpret the preferred mapping:
+```ttl
+_:b0 <skos:prefLabel> "test" .
+```
+
+An OO-LD aware convert could also produce redundant triples for interoperability reasons:
+```ttl
+_:b0 <skos:prefLabel> "test" .
+_:b0 <schema:name> "test" .
+```
+
+Furthermore, this notation can be used for data transformation and normalization, see https://github.com/OO-LD/schema/issues/11
+
 
 ### JSON-SCHEMA
 Current support covers [Draft 4] (https://json-schema.org/specification-links#draft-4).
@@ -111,7 +295,7 @@ JSON-SCHEMA itself supports linked data only in form of subobject. References to
 
 ##### Draft v0.1:
 
-`range` is an IRI 
+`range` is an IRI. While this is concise, there's no way to express unions and intersections of multiple schemas.
 
 ```json
 {
@@ -133,7 +317,7 @@ JSON-SCHEMA itself supports linked data only in form of subobject. References to
 
 ##### Draft v0.2:
 
-`range` is an OO-LD schema
+`range` is an OO-LD schema. By using `...Of` keywords, unions (`anyOf` / `oneOf`) and intersections (`allOf`) of multiple schemas can be expressed.
 
 This will allow the following constellations:
 
@@ -162,8 +346,8 @@ This will allow the following constellations:
   }
 }
 ```
-
-Full Example:
+<details>
+<summary>Full Example:</summary>
 
 ```json
 {
@@ -179,7 +363,7 @@ Full Example:
     "type": {
       "type": "string",
       "const": "schema:Person",
-    }
+    },
     "works_for": {
       "type": "string",
       "range": {
@@ -210,12 +394,15 @@ Full Example:
   }
 }
 ```
+</details>
+
+On the downside, `range` may build up large schema graphs with circular paths which can raise issues in JSON-SCHEMA bundlers following all `$ref` relations. However, [JSON-SCHEMA]{#JSONSCHEMA202012} recommends standard bundlers not to follow `$ref` within custom keywords in [section 9.4.2](https://json-schema.org/draft/2020-12/json-schema-core#name-references-to-possible-non-). See also https://json-schema.org/blog/posts/bundling-json-schema-compound-documents.
 
 
 #### UI Generation
 Additional keywords defined by [JSON-SCHEMA Editor](https://github.com/json-editor/json-editor), see [Basic features](https://github.com/json-editor/json-editor#readme) and [Further details](https://github.com/json-editor/json-editor/blob/master/README_ADDON.md)
 
-#### Code Generation
+## Code Generation
 
 In general we want to keep keywords in 'instance' JSON-documents (=> property names in schemas) strict `^[A-z_]+[A-z0-9_]*$` to avoid escaping or replacing when mapping to other languages. This works well with [aliasing](https://www.w3.org/TR/json-ld11/#aliasing-keywords), e.g.
 ```json
@@ -240,7 +427,7 @@ In general we want to keep keywords in 'instance' JSON-documents (=> property na
 }
 ```
 
-##### Python
+### Python
 
 The Person schema above translates smoothly to python (pydantic) via https://github.com/koxudaxi/datamodel-code-generator:
 ```python
@@ -261,11 +448,45 @@ From pydantic it's also straight forward to [generate JSON- / OpenAPI-Schemas](h
   * Javascript Framework for graph visualization and editing: [interactive-semantic-graph](https://github.com/OpenSemanticLab/interactive-semantic-graph)
   * Fully integrated platform (currently) based on Semantic Mediawiki: [docker-compose](https://github.com/OpenSemanticLab/osl-mw-docker-compose), [Demo](https://demo.open-semantic-lab.org/wiki/Main_Page)
 
+## IANA Considerations
+| Slot | File extension (recommended) | Media type | RFC6906 profile | Description
+| -- | --| -- | -- | -- |
+| schema |*.schema.json | `application/oold-schema+json` | - | Full OO-LD schema
+| schema |*.schema.json | `application/oold-schema+json` | oold-schema#bundled | Full OO-LD schema with all `$ref` and remote context bundled
+| schema |*.schema.json | `application/oold-schema+json` | http://www.w3.org/ns/json-ld#context | Only the JSON-LD context
+| schema |*.schema.json | `application/ld+json` | - | Only the JSON-LD context
+| schema |*.schema.json | `application/schema+json` | - | Only the JSON-SCHEMA schema
+| data |*.data.json | `application/oold-schema-instance+json` | - | Full OO-LD instance
+| data |*.data.json | `application/ld+json` | http://www.w3.org/ns/json-ld#* | Full OO-LD instance. Profiles defined in https://www.w3.org/TR/json-ld/#iana-considerations apply
+| data |*.data.json | `application/json` | - | Only the JSON data
+
+### Security considerations
+Both security consideration of [JSON-LD v1.1 section C](https://www.w3.org/TR/2020/REC-json-ld11-20200716/#iana-considerations) and [JSON-SCHEMA 2020-12 section 13](https://json-schema.org/draft/2020-12/json-schema-core#section-13) apply.
+
 ## Registry
 * [OpenSemanticWorld Package Registry](https://github.com/OpenSemanticWorld-Packages), deployed e. g. [OpenSemanticWorld](https://opensemantic.world/)
 
 ## Discussion
 * In the context of YAML-LD: https://github.com/json-ld/yaml-ld/issues/19
+
+## Normative References
+
+|||
+| - | - |
+| <a id="RFC2119"></a>RFC 2119 | Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, <https://www.rfc-editor.org/info/rfc2119>. 
+| <a id="RFC8259"></a>RFC 8259 | Bray, T., Ed., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, DOI 10.17487/RFC8259, December 2017, <https://www.rfc-editor.org/info/rfc8259>. 
+| <a id="JSONLD11"></a>JSON-LD | https://www.w3.org/TR/2020/REC-json-ld11-20200716/
+| <a id="JSONSCHEMA202012"></a>JSON-SCHEMA | https://json-schema.org/draft/2020-12/json-schema-core
+| <a id="LDP"></a>W3C.REC-ldp-20150226 | Speicher, S., Arwe, J., and A. Malhotra, "Linked Data Platform 1.0", World Wide Web Consortium Recommendation REC-ldp-20150226, 26 February 2015, <https://www.w3.org/TR/2015/REC-ldp-20150226>. 
+
+## Informative References
+
+|||
+| - | - |
+| <a id="RFC7049"></a>RFC 7049 | Bormann, C. and P. Hoffman, "Concise Binary Object Representation (CBOR)", RFC 7049, DOI 10.17487/RFC7049, October 2013, <https://www.rfc-editor.org/info/rfc7049>.
+
+
+# Appendix
 
 ## Related Work
 
@@ -353,7 +574,7 @@ definitions:
             $ref: '#/definitions/sections/Element'
 ```
 
-generating/validating the same JSON/YAML data (see also [playground](https://oo-ld.github.io/playground-yaml/?data=N4Ig9gDgLglmB2BnEAuUMDGCA2MBGqIAZglAIYDuApomALZUCsIANOHgFZUZQD62ZAJ5gArlELwwAJzplsrEIgwALKrNSgAAlnhQqAD3FoQVbGqq7kKEMqhQIiFAHonFAMwwAJk7V0wT5TJEAAUyKXE2ATxTQlt7RxclVVkAOmkAcyd4MgYQAF82TyoiGHgYWAQrUERuCqQNEABRMwZdBogpSCpwmBoGqJjjKEEIKkJEKClS9PzCi0RywQbh0YkROmipBREyoxBMjDoAKiO3WZAYWiguqpAVseswqSEFcrVb%2B8JSvXTu85IZGQ9uQ8GZ8nkCiAAML0CBgBZ1dqdUY9PrGLB0OEIuDwZYjB6KSbnUzmSx41aPKTPJZsAGyYFkUFjNhvOi3AAkUmKhAAxE4iiVdjjEE4ajxhU5mqTxBDZZDOdzrHyBaVyhKxXURTDMfC1QgFAKyCJsEZQOyMa09gAZMBkTwAAloDHthuNUBdQLI9uu9rhEGNQKo3tU9qonnK0mQbAxWL1uOsAAkAEwAeQUJMtVgA2qABvJEwb5otUAAGFIlislgAcbgA7IwWVcbqgswBGFhJlhuAC6BVzjMGIDTcyQxZQrZSrYALO2Lk3RtnWwA2Fit2urqu93uQxDKMAUXjdTpSKwXXTdMji%2FVsKDJAl4MBgKATZ4QKcKMgcMj6VCTERUNgAGsqCoCBeAQKgwCIXgADc5H%2FKwiDkGpIQ4Wh41AGNdURRNU3TFoLGfFt%2B2ifMQATQtR2GUty0rGt60bJ9mxQNsOy7XsWBIwdhxAIoqKWcdJxnRjrgXFtl1XddW03PJuzYc16EtQgbTtR16CDV0TQ9chvTAX1IADPRgyDMMIxPcEgA%3D), e.g.
+generating/validating the same JSON/YAML data (see also [playground](https://oo-ld.github.io/playground-yaml/?data=N4Ig9gDgLglmB2BnEAuUMDGCA2MBGqIAZglAIYDuApomALZUCsIANOHgFZUZQD62ZAJ5gArlELwwAJzplsrEIgwALKrNSgAAlnhQqAD3FoQVbGqq7kKEMqhQIiFAHonFAMwwAJk7V0wT5TJEAAUyKXE2ATxTQlt7RxclVVkAOmkAcyd4MgYQAF82TyoiGHgYWAQrUERuCqQNEABRMwZdBogpSCpwmBoGqJjjKEEIKkJEKClS9PzCi0RywQbh0YkROmipBREyoxBMjDoAKiO3WZAYWiguqpAVseswqSEFcrVb%2B8JSvXTu85IZGQ9uQ8GZ8nkCiAAML0CBgBZ1dqdUY9PrGLB0OEIuDwZYjB6KSbnUzmSx41aPKTPJZsAGyYFkUFjNhvOi3AAkUmKhAAxE4iiVdjjEE4ajxhU5mqTxBDZZDOdzrHyBaVyhKxXURTDMfC1QgFAKyCJsEZQOyMa09gAZMBkTwAAloDHthuNUBdQLI9uu9rhEGNQKo3tU9qonnK0mQbAxWL1uOsAAkAEwAeQUJMtVgA2qABvJEwb5otUAAGFIlislgAcbgA7IwWVcbqgswBGFhJlhuAC6BVzjMGIDTcyQxZQrZSrYALO2Lk3RtnWwA2Fit2urqu93uQxDKMAUXjdTpSKwXXTdMji%2FVsKDJAl4MBgKATZ4QKcKMgcMj6VCTERUNgAGsqCoCBeAQKgwCIXgADc5H%2FKwiDkGpIQ4Wh41AGNdURRNU3TFoLGfFt%2B2ifMQATQtR2GUty0rGt60bJ9mxQNsOy7XsWBIwdhxAIoqKWcdJxnRjrgXFtl1XddW03PJuzYc16EtQgbTtR16CDV0TQ9chvTAX1IADPRgyDMMIxPcEgA%3D)), e.g.
 
 ```yaml
 composition: H2O
@@ -376,3 +597,64 @@ by using the following mapping (work in progress):
 | shape[*, *] | type: array, items: type: array, items: type: number | nested array |
 | sub_sections: ... : repeats: true | type: array, items: type: object | array of objects
 |... | | |
+
+
+### Dlite
+
+[Dlite](https://github.com/SINTEF/dlite) already uses JSON-SCHEMA keywords like `properties`, `type` and `description`. Similar to NOMAD, annotations `unit` declare the unit of measure of quantity values and `shape` is used to describe array dimensions. However, different from NOMAD, `shape` refers to parameters declared under `dimensions`.  
+
+```yaml
+uri: http://onto-ns.com/meta/0.1/Person
+description: A person.
+dimensions:
+  nskills: Number of skills.
+properties:
+  name:
+    type: string
+    description: Full name.
+  age:
+    type: float32
+    unit: year
+    description: Age of person.
+  skills:
+    type: string
+    shape: [nskills]
+    description: List of skills.
+```
+
+```yaml
+"@context": 
+  age:
+    "@type": float32
+$id: http://onto-ns.com/meta/0.1/Person
+description: A person.
+x-dlite-dimensions:
+  nskills: Number of skills.
+properties:
+  name:
+    type: string
+    description: Full name.
+  age:
+    type: number
+    x-dlite-unit: year
+    description: Age of person.
+  skills:
+    type: array
+    x-dlite-shape: [nskills]
+    description: List of skills.
+    #minItems: ? # can be set if nskills is known
+    #maxItems: ? # can be set if nskills is known
+    items:
+      type: string
+```
+
+```yaml
+uuid: 8cbd4c09-734d-4532-b35a-1e0dd5c3e8b5
+name: Sherlock Holmes:
+age: 34.0
+skills:
+  - observing
+  - chemistry
+  - violin
+  - boxind
+```
