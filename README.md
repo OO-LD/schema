@@ -91,7 +91,7 @@ A minimal example:
   "properties": {
     "name": {
       "type": "string",
-      "description": "First and Last name",
+      "description": "First and Last name"
     }
   }
 }
