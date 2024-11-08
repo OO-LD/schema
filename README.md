@@ -601,14 +601,20 @@ by using the following mapping (work in progress):
 
 ### Dlite
 
+#### Schema
+
 [Dlite](https://github.com/SINTEF/dlite) already uses JSON-SCHEMA keywords like `properties`, `type` and `description`. Similar to NOMAD, annotations `unit` declare the unit of measure of quantity values and `shape` is used to describe array dimensions. However, different from NOMAD, `shape` refers to parameters declared under `dimensions`.  
 
 ```yaml
-uri: http://onto-ns.com/meta/0.1/Person
+uri: http://onto-ns.com/meta/0.1/Person # identifier of the schema document
+meta: http://onto-ns.com/meta/0.3/EntitySchema # links to a meta schema as type
 description: A person.
 dimensions:
   nskills: Number of skills.
 properties:
+  general:
+    type: $ref
+    $ref: http://onto-ns.com/meta/0.1/Thing # reference to a another schema document
   name:
     type: string
     description: Full name.
@@ -621,11 +627,14 @@ properties:
     shape: [nskills]
     description: List of skills.
 ```
+> Person.dlite.yml
 
+To overcome the missing expressivness in JSON-SCHEMA alone, specific JSON-LD `@type` annotations can be used (here `xsd:float`). `dimension`, `unit`, and `shape` can be expressed with custom keywords, prefixed by `x-dlite-`.
 ```yaml
-"@context": 
+"@context":
+  xsd: http://www.w3.org/2001/XMLSchema
   age:
-    "@type": float32
+    "@type": xsd:float # see: https://www.w3.org/TR/xmlschema11-2/#float
 $id: http://onto-ns.com/meta/0.1/Person
 description: A person.
 x-dlite-dimensions:
@@ -647,10 +656,38 @@ properties:
     items:
       type: string
 ```
+> Person.oold.yml
+
+#### Instance
+
+On the instance level the main difference is the nesting of properties within a `properties` subobject. This can be interpreted as JSON-LD [nested-properties](https://www.w3.org/TR/json-ld/#nested-properties). Links to other instance documents are UUIDs which should be interpreted as `urn:uuid`.
+
 
 ```yaml
+"@context":
+  - /remote/context/of/Person
+  - properties: "@nest" # skip this level
+
 uuid: 8cbd4c09-734d-4532-b35a-1e0dd5c3e8b5
-name: Sherlock Holmes:
+meta: http://onto-ns.com/meta/0.1/Person # like type
+properties:
+  general: <UUID of a Thing instance document>
+  name: Sherlock Holmes
+  age: 34.0
+  skills:
+    - observing
+    - chemistry
+    - violin
+    - boxind
+```
+> SherlockHolmes.dlite.yml
+
+```yaml
+"@context": http://onto-ns.com/meta/0.1/Person
+$schema: http://onto-ns.com/meta/0.1/Person
+uuid: 8cbd4c09-734d-4532-b35a-1e0dd5c3e8b5
+general: urn:uuid:<UUID of a Thing instance document>
+name: Sherlock Holmes
 age: 34.0
 skills:
   - observing
@@ -658,3 +695,4 @@ skills:
   - violin
   - boxind
 ```
+> SherlockHolmes.oold.yml
