@@ -640,6 +640,10 @@ description: A person.
 x-dlite-dimensions:
   nskills: Number of skills.
 properties:
+  general:
+    type: string
+    format: uri
+    x-oold-range: http://onto-ns.com/meta/0.1/Thing # reference to a another schema document
   name:
     type: string
     description: Full name.
