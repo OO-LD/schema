@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11401726.svg        )](https://doi.org/10.5281/zenodo.11401726          )
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11401726.svg)](https://doi.org/10.5281/zenodo.11401726)
 
 - [OO-LD Schema](#oo-ld-schema)
   - [Overview](#overview)
@@ -474,8 +474,8 @@ Both security consideration of [JSON-LD v1.1 section C](https://www.w3.org/TR/20
 
 |||
 | - | - |
-| <a id="RFC2119"></a>RFC 2119 | Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119,      March 1997, <https://www.rfc-editor.org/info/rfc2119>. 
-| <a id="RFC8259"></a>RFC 8259 | Bray, T., Ed., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, DOI 10.17487/RFC8259,      December 2017, <https://www.rfc-editor.org/info/rfc8259>. 
+| <a id="RFC2119"></a>RFC 2119 | Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119,           March 1997, <https://www.rfc-editor.org/info/rfc2119>. 
+| <a id="RFC8259"></a>RFC 8259 | Bray, T., Ed., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, DOI 10.17487/RFC8259,           December 2017, <https://www.rfc-editor.org/info/rfc8259>. 
 | <a id="JSONLD11"></a>JSON-LD | https://www.w3.org/TR/2020/REC-json-ld11-20200716/
 | <a id="JSONSCHEMA202012"></a>JSON-SCHEMA | https://json-schema.org/draft/2020-12/json-schema-core
 | <a id="LDP"></a>W3C.REC-ldp-20150226 | Speicher, S., Arwe, J., and A. Malhotra, "Linked Data Platform 1.0", World Wide Web Consortium Recommendation REC-ldp-20150226, 26 February 2015, <https://www.w3.org/TR/2015/REC-ldp-20150226>. 
@@ -484,7 +484,7 @@ Both security consideration of [JSON-LD v1.1 section C](https://www.w3.org/TR/20
 
 |||
 | - | - |
-| <a id="RFC7049"></a>RFC 7049 | Bormann, C. and P. Hoffman, "Concise Binary Object Representation (CBOR)", RFC 7049, DOI 10.17487/RFC7049,       October 2013, <https://www.rfc-editor.org/info/rfc7049>.
+| <a id="RFC7049"></a>RFC 7049 | Bormann, C. and P. Hoffman, "Concise Binary Object Representation (CBOR)", RFC 7049, DOI 10.17487/RFC7049,             October 2013, <https://www.rfc-editor.org/info/rfc7049>.
 
 
 # Appendix
@@ -514,6 +514,7 @@ Both security consideration of [JSON-LD v1.1 section C](https://www.w3.org/TR/20
 | [OTTR](https://ottr.xyz/)   | Mixture of custom template and schema language. Limited toolset to convert from/to other formats. |
 | [TheWorldAvatar/ObjectGraphMapper](https://github.com/cambridge-cares/TheWorldAvatar/tree/main/core/ogm) | Class-RDF Mapping in Java via decorators |
 | [Cross-Domain Interoperability Framework (CDIF)](https://zenodo.org/records/11236871) | CDIF is a set of implementation recommendations, based on profiles of common, domain-neutral metadata standards which are aligned to work together to support core functions required by FAIR.|
+| [DDI-CDI](https://ddi-cdi.github.io/ddi-cdi_v1.0-rc3/field-level-documentation/index.html) | Cross domain meta data model between domain specific specifications and high - level specifications such as DCAT and Datacite |
 
 ### Data
 | Name      | Description |
