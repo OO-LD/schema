@@ -403,7 +403,9 @@ On the downside, `range` may build up large schema graphs with circular paths wh
 #### UI Generation
 Additional keywords defined by [JSON-SCHEMA Editor](https://github.com/json-editor/json-editor), see [Basic features](https://github.com/json-editor/json-editor#readme) and [Further details](https://github.com/json-editor/json-editor/blob/master/README_ADDON.md)
 
-## Code Generation
+## Usecases
+
+### Code Generation
 
 In general we want to keep keywords in 'instance' JSON-documents (=> property names in schemas) strict `^[A-z_]+[A-z0-9_]*$` to avoid escaping or replacing when mapping to other languages. This works well with [aliasing](https://www.w3.org/TR/json-ld11/#aliasing-keywords), e.g.
 ```json
@@ -428,7 +430,7 @@ In general we want to keep keywords in 'instance' JSON-documents (=> property na
 }
 ```
 
-### Python
+#### Python
 
 The Person schema above translates smoothly to python (pydantic) via https://github.com/koxudaxi/datamodel-code-generator:
 ```python
@@ -440,14 +442,32 @@ class Person(BaseModel):
 what would not be the case if we use `@type` or `schema:name` as property names (See also [python playground](https://oo-ld.github.io/playground-python-yaml/)).
 From pydantic it's also straight forward to [generate JSON- / OpenAPI-Schemas](https://docs.pydantic.dev/latest/concepts/json_schema/), especially via [FastAPI](https://fastapi.tiangolo.com/features/).
 
+### Workflows and Code Analysis
+
+OO-LD can be combined with standard code compiler/interpreter tooling, especially [Abstract Syntax Trees](https://en.wikipedia.org/wiki/Abstract_syntax_tree) and tracing provide a semantic description of software-defined workflows.
+More information see [AWL](https://github.com/OO-LD/awl-schema)
+
+### Integration with Large Language Models
+
+Recent support of Large Language Models (LLMs) for [structured output](https://python.langchain.com/docs/how_to/structured_output/) is based on JSON-SCHEMA. This allows the direct application of OO-LD schemas with LLMs in order to generate, complete or validate structured data.
+Example usecases see [osw-chatbot](https://github.com/opensemanticworld/osw-chatbot/)
+
 ## Tooling
-* General
+### General
   * [JSON-LD Tooling](https://json-ld.org/#developers)
   * [JSON-SCHEMA Tooling](https://json-schema.org/implementations)
-* OO-LD Specific
+  * [Code Analysis](https://github.com/OO-LD/awl-schema)
+  * [LLM Structured Output and Toolcalling](https://python.langchain.com/docs/how_to/structured_output/)
+### OO-LD Specific
   * Python: [oold-python](https://github.com/OpenSemanticWorld/oold-python)
   * Javascript Framework for graph visualization and editing: [interactive-semantic-graph](https://github.com/OpenSemanticLab/interactive-semantic-graph)
   * Fully integrated platform (currently) based on Semantic Mediawiki: [docker-compose](https://github.com/OpenSemanticLab/osl-mw-docker-compose), [Demo](https://demo.open-semantic-lab.org/wiki/Main_Page)
+  * [LLM Integration](https://github.com/opensemanticworld/osw-chatbot/)
+### Playgrounds
+  * [UI & RDF Generation](https://oo-ld.github.io/playground-yaml/)
+  * [Python Code Generation](https://oo-ld.github.io/playground-python-yaml/)
+  * [Semantic Workflow Description](https://oo-ld.github.io/playground-awl/)
+
 
 ## IANA Considerations
 | Slot | File extension (recommended) | Media type | RFC6906 profile | Description
