@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11401726.svg)](https://doi.org/10.5281/zenodo.11401726)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11401726.svg )](https://doi.org/10.5281/zenodo.11401726 )
 
 - [OO-LD Schema](#oo-ld-schema)
   - [Overview](#overview)
@@ -46,6 +46,14 @@ The Object Oriented Linked Data Schema based on [JSON-LD](#JSONLD11) and [JSON-S
 ## Overview
 
 OO-LD Schema aims to connect the structural modelling of objects and subobjects with the modelling of the semantic relations without reinventing the wheel. It therefor combines existing standards, primary [JSON-SCHEMA](https://json-schema.org/) and a [JSON-LD](https://json-ld.org/) context in the same document.
+
+*Why OO-LD?*
+- OO-LD schema documents are supported by a wide range of existings tools (all JSON-SCHEMA and JSON-LD tooling!)
+- OO-LD schema documents themself follow linked data principles to make them retrievable over the web to allow flexible schema compositions
+- OO-LD schemas allow generic ex- and import of RDF
+- OO-LD schemas are compatible with LLM APIs
+- OO-LD schemas can be used as function (dataclasses) and API signatures (OpenAPI) 
+- OO-LD schemas can be used to define graphical user interfaces, in particular forms
 
 ![](https://opensemantic.world/wiki/Special:Redirect/file/OSW95a74be1e22d4b6e9e4f836127d5915a.drawio.svg)
 > JSON, JSON-SCHEMA and JSON-LD technology stack with [OpenSemanticLab](https://github.com/OpenSemanticLab) as example document store / platform
