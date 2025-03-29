@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11401726.svg )](https://doi.org/10.5281/zenodo.11401726 )
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11401726.svg   )](https://doi.org/10.5281/zenodo.11401726   )
 
 - [OO-LD Schema](#oo-ld-schema)
   - [Overview](#overview)
@@ -419,20 +419,22 @@ In general we want to keep keywords in 'instance' JSON-documents (=> property na
 ```json
 {
   "@context": {
+    "ex": "https://example.org/",
     "schema": "http://schema.org/",
     "name": "schema:name",
     "type": "@type"
   },
+  "iri": "ex:RawData",
   "title": "Person",
   "type": "object",
   "properties": {
     "type": {
       "type": "string",
-      "default": "schema:Person",
+      "default": "schema:Person"
     },
     "name": {
       "type": "string",
-      "description": "First and Last name",
+      "description": "First and Last name"
     }
   }
 }
@@ -441,18 +443,40 @@ In general we want to keep keywords in 'instance' JSON-documents (=> property na
 #### Python
 
 The Person schema above translates smoothly to python (pydantic) via https://github.com/koxudaxi/datamodel-code-generator:
-```python
+```py
 class Person(BaseModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "@context": {
+                "ex": "https://example.org/",
+                "schema": "https://schema.org/",
+                "name": "schema:name",
+                "type": "@type"
+            },
+            "iri": "ex:RawData",  # the IRI of the class
+        }
+    )
     type: Optional[str] = "schema:Person"
     name: Optional[str] = None
     """First and Last name"""
 ```
 what would not be the case if we use `@type` or `schema:name` as property names (See also [python playground](https://oo-ld.github.io/playground-python-yaml/)).
-From pydantic it's also straight forward to [generate JSON- / OpenAPI-Schemas](https://docs.pydantic.dev/latest/concepts/json_schema/), especially via [FastAPI](https://fastapi.tiangolo.com/features/).
+From pydantic it's also straight forward to (re)generate OO-LD and  [OpenAPI-Schemas](https://docs.pydantic.dev/latest/concepts/json_schema/), especially via [FastAPI](https://fastapi.tiangolo.com/features/).
 
 ### Workflows and Code Analysis
 
-OO-LD can be combined with standard code compiler/interpreter tooling, especially [Abstract Syntax Trees](https://en.wikipedia.org/wiki/Abstract_syntax_tree) and tracing provide a semantic description of software-defined workflows.
+A commmon ground for workflow definitions are decorated dataclass-typed functions that are managed by a workflow-environment like [prefect](https://github.com/PrefectHQ/prefect).
+
+```py
+@flow
+def my_node(param: MyInputClass) -> MyOutputClass:
+  ...
+  return MyOutputClass(...)
+```
+
+If these dataclasses are following OO-LD annoations as described above the semantics of the workflow (node) is inherently contained.
+
+In this regard, OO-LD can be combined with standard code compiler/interpreter tooling, especially [Abstract Syntax Trees](https://en.wikipedia.org/wiki/Abstract_syntax_tree) and tracing provide a semantic description of software-defined workflows.
 More information see [AWL](https://github.com/OO-LD/awl-schema)
 
 ### Integration with Large Language Models
@@ -502,8 +526,8 @@ Both security consideration of [JSON-LD v1.1 section C](https://www.w3.org/TR/20
 
 |||
 | - | - |
-| <a id="RFC2119"></a>RFC 2119 | Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119,           March 1997, <https://www.rfc-editor.org/info/rfc2119>. 
-| <a id="RFC8259"></a>RFC 8259 | Bray, T., Ed., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, DOI 10.17487/RFC8259,           December 2017, <https://www.rfc-editor.org/info/rfc8259>. 
+| <a id="RFC2119"></a>RFC 2119 | Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119,             March 1997, <https://www.rfc-editor.org/info/rfc2119>. 
+| <a id="RFC8259"></a>RFC 8259 | Bray, T., Ed., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, DOI 10.17487/RFC8259,             December 2017, <https://www.rfc-editor.org/info/rfc8259>. 
 | <a id="JSONLD11"></a>JSON-LD | https://www.w3.org/TR/2020/REC-json-ld11-20200716/
 | <a id="JSONSCHEMA202012"></a>JSON-SCHEMA | https://json-schema.org/draft/2020-12/json-schema-core
 | <a id="LDP"></a>W3C.REC-ldp-20150226 | Speicher, S., Arwe, J., and A. Malhotra, "Linked Data Platform 1.0", World Wide Web Consortium Recommendation REC-ldp-20150226, 26 February 2015, <https://www.w3.org/TR/2015/REC-ldp-20150226>. 
@@ -512,7 +536,7 @@ Both security consideration of [JSON-LD v1.1 section C](https://www.w3.org/TR/20
 
 |||
 | - | - |
-| <a id="RFC7049"></a>RFC 7049 | Bormann, C. and P. Hoffman, "Concise Binary Object Representation (CBOR)", RFC 7049, DOI 10.17487/RFC7049,             October 2013, <https://www.rfc-editor.org/info/rfc7049>.
+| <a id="RFC7049"></a>RFC 7049 | Bormann, C. and P. Hoffman, "Concise Binary Object Representation (CBOR)", RFC 7049, DOI 10.17487/RFC7049,               October 2013, <https://www.rfc-editor.org/info/rfc7049>.
 
 
 # Appendix
