@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11401726.svg   )](https://doi.org/10.5281/zenodo.11401726   )
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11401726.svg    )](https://doi.org/10.5281/zenodo.11401726    )
 
 - [OO-LD Schema](#oo-ld-schema)
   - [Overview](#overview)
@@ -283,8 +283,46 @@ _:b0 <skos:prefLabel> "test" .
 _:b0 <schema:name> "test" .
 ```
 
-Furthermore, this notation can be used for data transformation and normalization, see https://github.com/OO-LD/schema/issues/11
+Furthermore, this notation can be used for data transformation and normalization
+As an example a dataset could consist of persons and organisations that report there relations in a syntactically inoperable way:
+```yaml
+"@graph":
+- id: demo:person1
+  type: schema:Person
+  name: Person1
+  works_for: demo:organizationA # forward relation
+  works_for*: demo:organizationB # forward relation but different property
+- id: demo:organizationA
+  type: schema:Organization
+- id: demo:organizationB
+  type: schema:Organization
+- id: demo:organizationC
+  type: schema:Organization
+  employes: demo:person1 # backwards relation
+```
 
+Normalizing would lead to a consistent unified dataset. For more information see https://github.com/OO-LD/schema/issues/11
+```yaml
+"@graph":
+- employes:
+  - demo:person1
+  - demo:person2
+  - demo:person3
+  id: demo:organizationA
+  label:
+  - lang: en
+    text: organizationA
+  type: schema:Organization
+- id: demo:person1
+  name: Person1
+  type: schema:Person
+- id: demo:person2
+  name: Person2
+  type: schema:Person
+- id: demo:person3
+  name: Person3
+  type: schema:Person
+```
 
 ### JSON-SCHEMA
 Current support covers [Draft 4] (https://json-schema.org/specification-links#draft-4).
