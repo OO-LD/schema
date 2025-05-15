@@ -22,9 +22,15 @@
           - [Inline type restriction](#inline-type-restriction)
           - [Reference to existing schema](#reference-to-existing-schema)
       - [UI Generation](#ui-generation)
-  - [Code Generation](#code-generation)
-    - [Python](#python)
+  - [Usecases](#usecases)
+    - [Code Generation](#code-generation)
+      - [Python](#python)
+    - [Workflows and Code Analysis](#workflows-and-code-analysis)
+    - [Integration with Large Language Models](#integration-with-large-language-models)
   - [Tooling](#tooling)
+    - [General](#general)
+    - [OO-LD Specific](#oo-ld-specific)
+    - [Playgrounds](#playgrounds)
   - [IANA Considerations](#iana-considerations)
     - [Security considerations](#security-considerations)
   - [Registry](#registry)
@@ -36,9 +42,12 @@
     - [Schema](#schema)
     - [Data](#data)
   - [Mappings](#mappings)
+  - [Asset Administion Shell](#asset-administion-shell)
     - [LinkML](#linkml)
     - [NOMAD](#nomad)
     - [Dlite](#dlite)
+      - [Schema](#schema-1)
+      - [Instance](#instance)
 
 # OO-LD Schema
 The Object Oriented Linked Data Schema based on [JSON-LD](#JSONLD11) and [JSON-SCHEMA](#JSONSCHEMA202012) - work in process!
@@ -612,6 +621,59 @@ Both security consideration of [JSON-LD v1.1 section C](https://www.w3.org/TR/20
 | [BatteryKnowledgeGraph](https://github.com/BIG-MAP/BatteryKnowledgeGraph) | Battery related linked data set |
 
 ## Mappings
+
+## Asset Administion Shell
+
+Asset Administion Shell combines schema and data in a single documents. Semantics are introduced by annotations keywords.
+
+```yml
+- assetInformation:
+    assetKind: Instance
+    globalAssetId: test
+  id: https://example.org/Simple_AAS
+  modelType: AssetAdministrationShell
+  submodels:
+  - keys:
+    - type: Submodel
+      value: https://example.org/Simple_Submodel
+    type: ModelReference
+
+- id: https://example.org/Simple_Submodel
+  modelType: Submodel
+  submodelElements:
+  - idShort: ExampleProperty
+    modelType: Property
+    semanticId:
+      keys:
+      - type: GlobalReference
+        value: http://example.org/Properties/SimpleProperty
+      type: ExternalReference
+    value: exampleValue
+    valueType: xs:string
+```
+> AAS
+
+```yml
+- id: https://example.org/Simple_AAS
+  x-aas-modelType: AssetAdministrationShell
+
+- id: https://example.org/Simple_Submodel
+  @context:
+    ExampleProperty: http://example.org/Properties/SimpleProperty
+  x-aas-modelType: Submodel
+  allOf: 
+    $ref: https://example.org/Simple_AAS
+  properties:
+    ExampleProperty:
+      type: string
+      default: exampleValue # works like a template
+```
+> OO-LD Schemas
+
+```yml
+ExampleProperty: exampleValue
+```
+> Data
 
 ### LinkML
 
