@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11401726.svg    )](https://doi.org/10.5281/zenodo.11401726    )
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11401726.svg       )](https://doi.org/10.5281/zenodo.11401726       )
 
 - [OO-LD Schema](#oo-ld-schema)
   - [Overview](#overview)
@@ -21,6 +21,7 @@
         - [Draft v0.2:](#draft-v02)
           - [Inline type restriction](#inline-type-restriction)
           - [Reference to existing schema](#reference-to-existing-schema)
+        - [Reverse properties](#reverse-properties)
       - [UI Generation](#ui-generation)
   - [Usecases](#usecases)
     - [Code Generation](#code-generation)
@@ -454,6 +455,95 @@ This will allow the following constellations:
 
 On the downside, `range` may build up large schema graphs with circular paths which can raise issues in JSON-SCHEMA bundlers following all `$ref` relations. However, [JSON-SCHEMA]{#JSONSCHEMA202012} recommends standard bundlers not to follow `$ref` within custom keywords in [section 9.4.2](https://json-schema.org/draft/2020-12/json-schema-core#name-references-to-possible-non-). See also https://json-schema.org/blog/posts/bundling-json-schema-compound-documents.
 
+#### Reverse properties
+There are many cases were relations are summetric, e.g. Organization employees Person <=> Person worksFor Organization.
+
+However, usually we do not want to store this information in different schemas but allow users to edit it from both sides.
+
+For this usecase the additional keywords `x-oold-reverse-properties`, `x-oold-reverse-default-properties` and `x-oold-reverse-required` are introduced
+
+To make `employees` the reverse property of `organization` we have to
+
+* define `employees` in the schema section   `x-oold-reverse-properties` of Organization
+* define `works_for` in the schema section   `x-oold-reverse-properties` of Person
+* map `employees` to a semantic property, e.g. `schema:worksFor` in the `@context` of Person
+* map `employees` with `@reverse` in the `@context` of Organization to the same property, compliant to [JSON-LD @reverse](https://www.w3.org/TR/json-ld11/#reverse-properties)
+
+Example:
+```json
+{
+  "@context": [
+    {
+      "employees": {
+        "@reverse": "schema:worksFor",
+        "@type": "@id"
+      }
+    }
+  ],
+  "title": "Organizational",
+  "type": "object",
+  "required": [
+    "type"
+  ],
+  "properties": {
+    "...": {}
+  },
+  "x-oold-reverse-required": [],
+  "x-oold-reverse-defaultProperties": [
+    "employees"
+  ],
+  "x-oold-reverse-properties": {
+    "employees": {
+      "type": "array",
+      "title": "Employees",
+      "items": {
+        "type": "string",
+        "format": "autocomplete",
+        "title": "Person",
+        "range": "Person.schema.json"
+      }
+    }
+  }
+}
+```
+> Organization.schema.json
+
+```json
+{
+  "@context": [
+    {
+      "organization": {
+        "@id": "schema:worksFor",
+        "@type": "@id"
+      }
+    }
+  ],
+  "title": "Person",
+  "defaultProperties": [
+    "organization"
+  ],
+  "properties": {
+    "organization": {
+      "title": "Organization",
+      "description": "Organization(s) the person is affiliated with. E.g., university, research institute, company, etc.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "title": "Organization",
+        "format": "autocomplete",
+        "range": "Organization.schema.json"
+      }
+    }
+  }
+}
+```
+> Person.schema.json
+
+An OO-LD aware implementation can make use of this annotation to allow to read and modify properties that are actualle stored in another object. E.g., When loading a UI editor for an Organization, the editor will prepopulate the field `employees` by executing the query "Which persons work for this organization"?
+
+When storing an Organization, the editor will also load the Persons referenced in `employees`and stores the current Organization in their `organization` field, following the `@context` mappings of both schemas. 
+
+Deleting a Person in `employees` will also delete the Organization from the corresponding field.
 
 #### UI Generation
 Additional keywords defined by [JSON-SCHEMA Editor](https://github.com/json-editor/json-editor), see [Basic features](https://github.com/json-editor/json-editor#readme) and [Further details](https://github.com/json-editor/json-editor/blob/master/README_ADDON.md)
@@ -583,7 +673,7 @@ Both security consideration of [JSON-LD v1.1 section C](https://www.w3.org/TR/20
 
 |||
 | - | - |
-| <a id="RFC7049"></a>RFC 7049 | Bormann, C. and P. Hoffman, "Concise Binary Object Representation (CBOR)", RFC 7049, DOI 10.17487/RFC7049,               October 2013, <https://www.rfc-editor.org/info/rfc7049>.
+| <a id="RFC7049"></a>RFC 7049 | Bormann, C. and P. Hoffman, "Concise Binary Object Representation (CBOR)", RFC 7049, DOI 10.17487/RFC7049,                October 2013, <https://www.rfc-editor.org/info/rfc7049>.
 
 
 # Appendix
@@ -622,7 +712,7 @@ Both security consideration of [JSON-LD v1.1 section C](https://www.w3.org/TR/20
 
 ## Mappings
 
-## Asset Administion Shell
+### Asset Administion Shell
 
 Asset Administion Shell combines schema and data in a single documents. Semantics are introduced by annotations keywords.
 
