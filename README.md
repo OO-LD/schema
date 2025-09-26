@@ -337,6 +337,11 @@ allOf:
   - $ref: https://raw.githubusercontent.com/MyOrg/my-package/refs/heads/2.0.0/A.schema.json
 ```
 
+Instance document SHOULD always use a versioned schema url to make clear with which schema version they comply, e.g.
+```yaml
+"@context": https://example.org/my-package/1.0.0/b5203131-7321-46bb-8a11-acb3d1015840.schema.json 
+$schema: https://example.org/my-package/1.0.0/b5203131-7321-46bb-8a11-acb3d1015840.schema.json
+```
 
 Upgrade-APIs MAY provide automated data migration between schema (package) versions, e.g. `https://example.org/upgrade/my-package/1.0.0...2.0.0`
 
