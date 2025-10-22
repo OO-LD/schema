@@ -724,6 +724,7 @@ Example usecases see [osw-chatbot](https://github.com/opensemanticworld/osw-chat
   * [UI & RDF Generation](https://oo-ld.github.io/playground-yaml/)
   * [Python Code Generation](https://oo-ld.github.io/playground-python-yaml/)
   * [Semantic Workflow Description](https://oo-ld.github.io/playground-awl/)
+  * [Human-in-the-Loop UI Workflow](https://repolab.github.io/jupyterlite-playground/lab/index.html?fromURL=https://raw.githubusercontent.com/OO-LD/awl-python/refs/heads/main/examples/human_in_the_loop_async.ipynb)
 
 
 ## IANA Considerations
