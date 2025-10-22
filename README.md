@@ -723,6 +723,7 @@ Example usecases see [osw-chatbot](https://github.com/opensemanticworld/osw-chat
 ### Playgrounds
   * [UI & RDF Generation](https://oo-ld.github.io/playground-yaml/)
   * [Python Code Generation](https://oo-ld.github.io/playground-python-yaml/)
+  * [Python Class Annotation & UI Generation](https://repolab.github.io/jupyterlite-playground/lab/index.html?fromURL=https://raw.githubusercontent.com/OO-LD/oold-python/refs/heads/main/examples/linked_data_editor.ipynb)
   * [Semantic Workflow Description](https://oo-ld.github.io/playground-awl/)
   * [Human-in-the-Loop UI Workflow](https://repolab.github.io/jupyterlite-playground/lab/index.html?fromURL=https://raw.githubusercontent.com/OO-LD/awl-python/refs/heads/main/examples/human_in_the_loop_async.ipynb)
 
