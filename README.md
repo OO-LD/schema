@@ -13,6 +13,7 @@
   - [Schema Instances](#schema-instances)
   - [Standard extensions](#standard-extensions)
     - [JSON-LD](#json-ld)
+      - [Processing mode (@version)](#processing-mode-version)
       - [Multi-Mapping](#multi-mapping)
     - [JSON-SCHEMA](#json-schema)
       - [Multilanguage support](#multilanguage-support)
@@ -367,7 +368,15 @@ The `x-oold-*` keywords are:
 
 ## Standard extensions
 ### JSON-LD
-Current support covers [v1.1] (https://www.w3.org/TR/json-ld/).
+OO-LD targets [JSON-LD 1.1](https://www.w3.org/TR/json-ld11/).
+
+#### Processing mode (`@version`)
+
+OO-LD composition relies on JSON-LD 1.1 features, in particular scoped contexts: a `$ref` within a `type: object` property is reflected as a property-scoped `@context` (see [Composition](#composition)). Such features are unavailable to a processor running in the `json-ld-1.0` processing mode.
+
+Generated OO-LD contexts SHOULD therefore declare `"@version": 1.1` (the JSON number `1.1`, not the string `"1.1"`). Modern processors default to the 1.1 processing mode, so this is a guard rather than a strict requirement: it prevents a JSON-LD 1.0 processor from silently mis-processing a 1.1 document (see [JSON-LD 1.1 section 4.1.1](https://www.w3.org/TR/json-ld11/#json-ld-1-1-processing-mode)).
+
+Because the first encountered `@version` entry determines the processing mode, it is sufficient to declare `"@version": 1.1` once in the base context of a composition (for example a root `Thing` schema). Schemas that reference that base first in their `@context` array inherit the 1.1 processing mode and need not repeat it.
 
 #### Multi-Mapping
 JSON-LD allows only a single keyword-IRI mapping (or more precisely, ignores all but the last mapping). Currently there is no way to express that a property has two ids (e. g. with `"label": {"@id": ["schema:name", "skos:prefLabel"]}`, see also [json-ld/json-ld.org#160](https://github.com/json-ld/json-ld.org/issues/160)). As a workaround, an additional context notation is provided: `<property>*(*)` pointing to additional `@id` mappings to provide at least a documentation for alternative options or custom RDF generation.
