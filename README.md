@@ -29,6 +29,7 @@
       - [Python](#python)
     - [Workflows and Code Analysis](#workflows-and-code-analysis)
     - [Integration with Large Language Models](#integration-with-large-language-models)
+    - [Delivery to OpenAPI, MCP and LLM tooling](#delivery-to-openapi-mcp-and-llm-tooling)
   - [Tooling](#tooling)
     - [General](#general)
     - [OO-LD Specific](#oo-ld-specific)
@@ -871,6 +872,37 @@ More information see [AWL](https://github.com/OO-LD/awl-schema)
 
 Recent support of Large Language Models (LLMs) for [structured output](https://python.langchain.com/docs/how_to/structured_output/) is based on JSON-SCHEMA. This allows the direct application of OO-LD schemas with LLMs in order to generate, complete or validate structured data.
 Example usecases see [osw-chatbot](https://github.com/opensemanticworld/osw-chatbot/)
+
+### Delivery to OpenAPI, MCP and LLM tooling
+
+An OO-LD schema carries its semantics in the top-level `@context`. When the schema is handed to OpenAPI tooling, an MCP client or an LLM, the goal is to keep those semantics *available* to the model (as grounding) and to downstream RDF - not to make the consumer emit `@context` in its output. With `additionalProperties: false` an instance stays limited to its declared `properties`, so `@context` remains schema-level metadata and is never produced as data.
+
+| Consumer | `@context` handling |
+|---|---|
+| JSON-LD / OO-LD-aware tools | native top-level `@context` (+ `x-oold-*`) |
+| OpenAPI 3.1 | native `@context` (arbitrary keywords allowed) |
+| MCP `inputSchema` / `outputSchema`, LLM tool-use / structured output | native `@context` - carried through and used as grounding |
+| OpenAPI 3.0, especially a bundle of several classes | per-schema `x-jsonld-context` / `x-jsonld-type` |
+| strict structured-output subset that rejects unknown keywords | IRIs folded into `title` / `description` |
+
+**MCP and tool-use / structured output.** An [MCP](https://modelcontextprotocol.io) tool's `inputSchema` (and the `outputSchema` added in the 2025-06-18 revision) is an ordinary JSON Schema object whose keywords MCP does not restrict, so a top-level `@context` is carried through unchanged over `tools/list`. Tool-use and structured-output APIs accept such a schema, and the model uses the context as grounding: in a roundtrip where an MCP server advertised a tool with two opaque properties `a` and `b` mapped through `@context` to `schema:familyName` and `schema:givenName`, the client received the `@context` intact and the model filled the fields by the IRIs (`a = "Mustermann"`, `b = "Max"`) rather than by surface order. An OO-LD schema can therefore be used directly as an MCP tool schema or a structured-output schema, with no relocation. The exception is a strict provider subset that rejects unknown keywords; there, fold the IRIs into the `title` / `description` annotations the model also reads.
+
+**OpenAPI.** OpenAPI 3.1 Schema Objects are JSON Schema 2020-12 and accept arbitrary keywords, so the native `@context` is used as-is. OpenAPI 3.0 Schema Objects reject unregistered keywords unless prefixed with `x-`, and a single OpenAPI document usually bundles several classes under `components/schemas`, where there is no document root to host one `@context`. Both are addressed by the IETF draft [REST API Linked Data Keywords](https://datatracker.ietf.org/doc/html/draft-polli-restapi-ld-keywords-08), which places a JSON-LD context and type on **each** Schema Object via `x-jsonld-context` and `x-jsonld-type` (valid for all OpenAPI versions >= 3.0). An OO-LD schema maps to them per class, mechanically and losslessly: `@context` -> `x-jsonld-context`, `x-oold-instance-rdf-type` -> `x-jsonld-type`.
+
+```json
+{
+  "components": {
+    "schemas": {
+      "Person": {
+        "x-jsonld-type": ["schema:Person"],
+        "x-jsonld-context": { "schema": "http://schema.org/", "name": "schema:name" },
+        "type": "object",
+        "properties": { "name": { "type": "string" } }
+      }
+    }
+  }
+}
+```
 
 ## Tooling
 ### General
