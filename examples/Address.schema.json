@@ -3,6 +3,7 @@
   "$id": "Address.schema.json",
   "x-oold-uuid": "e8536464-a654-49ee-bd44-df60424b73b1",
   "x-oold-version": "1.0.0",
+  "x-oold-instance-rdf-type": ["schema:PostalAddress"],
   "@context": {
     "@version": 1.1,
     "schema": "http://schema.org/",

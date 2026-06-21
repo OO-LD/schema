@@ -48,6 +48,11 @@
       "description": "Ontology IRI (or compact IRI) denoting the class described by this schema.",
       "type": "string"
     },
+    "x-oold-instance-rdf-type": {
+      "description": "The rdf:type(s) carried by instances of this schema, as a list of IRIs (e.g. [\"schema:Person\"]). OO-LD tooling materializes these as @type when exporting an instance to JSON-LD / RDF.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
     "x-oold-ref": {
       "description": "Reference to another OO-LD schema. Use x-oold-ref (not the standard $ref) for references that appear inside OO-LD custom keywords such as x-oold-range: there a plain $ref would be eagerly - and, for cyclic schema graphs, dangerously - dereferenced by generic JSON-Schema bundlers (the behaviour is undefined per Core section 9.4.2). Keep using the standard $ref for ordinary schema composition (allOf, properties, $defs), which bundlers are expected to resolve. x-oold-ref is resolved only by OO-LD-aware tools, lazily and with cycle handling.",
       "type": "string",

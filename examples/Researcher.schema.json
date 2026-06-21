@@ -3,6 +3,7 @@
   "$id": "Researcher.schema.json",
   "x-oold-uuid": "d7425353-9543-48dd-ac33-ce5f3137a62a",
   "x-oold-version": "1.0.0",
+  "x-oold-instance-rdf-type": ["schema:Person"],
   "@context": [
     "Person.schema.json",
     {
