@@ -423,7 +423,11 @@ Normalizing would lead to a consistent unified dataset. For more information see
 ```
 
 ### JSON-SCHEMA
-Current support covers [Draft 4] (https://json-schema.org/specification-links#draft-4).
+OO-LD targets [JSON-SCHEMA 2020-12](#JSONSCHEMA202012) as its normative dialect. An OO-LD schema SHOULD declare `"$schema": "https://json-schema.org/draft/2020-12/schema"` (or an OO-LD dialect meta-schema derived from it).
+
+2020-12 is required, not merely preferred: OO-LD's composition places `$ref` alongside sibling keywords (e.g. a property carrying `type`, `x-oold-range` and `@context`, or `allOf: [{$ref: ...}]` next to `properties`). Keywords adjacent to `$ref` are only evaluated from JSON-SCHEMA 2019-09 onward; in Draft 4 and Draft 7 they are ignored (see [2020-12 Core section 8.2.3.1](https://json-schema.org/draft/2020-12/json-schema-core#section-8.2.3.1)). Keywords such as `const` (used throughout this document) are likewise only available from draft-06 onward.
+
+Migration from the earlier Draft-4-style notation: rename `definitions` to `$defs`, `id` to `$id`, and use the numeric form of `exclusiveMinimum`/`exclusiveMaximum` instead of the boolean form.
 
 #### Multilanguange support
 Keywords `title` and `description` can be extended with additional keywords `title*` and `description*`, which hold and object with lang-keys (de, en, etc.) pointing to the translated strings.
@@ -1152,7 +1156,7 @@ produces a OO-LD schema (JSON-LD context + JSON-SCHEMA with additional annotatio
     '@id': schema:PostalAddress
   Organization:
     '@id': schema:Organization
-$schema: https://json-schema.org/draft/2019-09/schema
+$schema: https://json-schema.org/draft/2020-12/schema
 $id: https://example.org/Person/
 metamodel_version: 1.7.0
 version: null
