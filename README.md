@@ -281,7 +281,7 @@ see also
 -  https://www.w3.org/TR/owl-ref/#VersionInformation
 -  https://github.com/json-schema-org/website/issues/197
 
-The schema version SHOULD be indicated by `x-oold-version`, a prior version MAY be indicated with `oold-prior-version`
+The schema version SHOULD be indicated by `x-oold-version`, a prior version MAY be indicated with `x-oold-prior-version`
 
 ```yaml
 $id: https://example.org/b5203131-7321-46bb-8a11-acb3d1015840.schema.json
@@ -317,8 +317,8 @@ x-oold-uuid: b5203131-7321-46bb-8a11-acb3d1015840
 title: Foo
 x-oold-version: 1.1.0
 x-oold-prior-version: 1.0.0
-backward-compatible-with: https://example.org/my-package/2.0.0/b5203131-7321-46bb-8a11-acb3d1015840.schema.json
-incompatible-with: https://example.org/my-package/1.0.0/b5203131-7321-46bb-8a11-acb3d1015840.schema.json
+x-oold-backward-compatible-with: https://example.org/my-package/2.0.0/b5203131-7321-46bb-8a11-acb3d1015840.schema.json
+x-oold-incompatible-with: https://example.org/my-package/1.0.0/b5203131-7321-46bb-8a11-acb3d1015840.schema.json
 ```
 Schemas within a package or package repository may use relative URIs (see https://www.rfc-editor.org/rfc/rfc3986#section-5.1), e.g.
 `https://raw.githubusercontent.com/MyOrg/my-package/refs/heads/2.0.0/A.schema.json`
@@ -344,6 +344,27 @@ $schema: https://example.org/my-package/1.0.0/b5203131-7321-46bb-8a11-acb3d10158
 ```
 
 Upgrade-APIs MAY provide automated data migration between schema (package) versions, e.g. `https://example.org/upgrade/my-package/1.0.0...2.0.0`
+
+## Meta-schema and vocabulary
+
+OO-LD adds keywords on top of JSON-SCHEMA 2020-12. All OO-LD-proprietary keywords are prefixed with `x-oold-` so they are valid [JSON-SCHEMA extension keywords](https://json-schema.org/draft/2020-12/json-schema-core#section-6.5) and, at the same time, valid [OpenAPI 3.0 Specification Extensions](https://spec.openapis.org/oas/v3.0.3.html#specification-extensions) (OpenAPI 3.0 rejects unprefixed custom keywords in a Schema Object). The only non-prefixed OO-LD-specific entry is `@context`, which is a JSON-LD keyword and cannot be renamed.
+
+The OO-LD dialect is described by a meta-schema ([`meta/oold-meta-schema.json`](meta/oold-meta-schema.json)). It extends the standard 2020-12 meta-schema and adds the syntax of the `x-oold-*` keywords, so an OO-LD schema can be validated *as* an OO-LD schema. The meta-schema declares its vocabularies via `$vocabulary`: the seven standard 2020-12 vocabularies are re-listed as required (they are not inherited through `$ref`, see [Core section 8.1.2.2](https://json-schema.org/draft/2020-12/json-schema-core#section-8.1.2.2)), and the OO-LD vocabulary is declared **optional** (`false`) so that generic 2020-12 validators still process OO-LD schemas instead of refusing them.
+
+Declaring a vocabulary does not make a validator execute keyword behavior; that is supplied by OO-LD-aware tooling (e.g. the `oold` library). The meta-schema only validates that `x-oold-*` keywords are well-formed and provides a machine-readable `description` for each.
+
+The `x-oold-*` keywords are:
+
+| Keyword | Purpose |
+|---|---|
+| `x-oold-uuid` | Stable UUID identifying the schema across versions and locations |
+| `x-oold-version` / `x-oold-prior-version` | Semantic version of the schema, and its predecessor |
+| `x-oold-backward-compatible-with` / `x-oold-incompatible-with` | URIs of prior versions this schema is / is not compatible with |
+| `x-oold-iri` | Ontology IRI denoting the class described by the schema |
+| `x-oold-range` | Type constraint on an IRI-valued property (IRI, array of IRIs, or an OO-LD subschema) |
+| `x-oold-ref` | Reference to another OO-LD schema, resolved only by OO-LD-aware tools (use instead of `$ref` inside `x-oold-range`) |
+| `x-oold-multilang-title` / `x-oold-multilang-description` | Language maps of translated `title` / `description` |
+| `x-oold-reverse-properties` / `x-oold-reverse-required` / `x-oold-reverse-defaultProperties` | Reverse-property definitions (see [Reverse properties](#reverse-properties)) |
 
 ## Standard extensions
 ### JSON-LD
@@ -430,21 +451,21 @@ OO-LD targets [JSON-SCHEMA 2020-12](#JSONSCHEMA202012) as its normative dialect.
 Migration from the earlier Draft-4-style notation: rename `definitions` to `$defs`, `id` to `$id`, and use the numeric form of `exclusiveMinimum`/`exclusiveMaximum` instead of the boolean form.
 
 #### Multilanguange support
-Keywords `title` and `description` can be extended with additional keywords `title*` and `description*`, which hold and object with lang-keys (de, en, etc.) pointing to the translated strings.
-Mapping of `title*[lang]` must be provided by schema preprocessing.
+Keywords `title` and `description` can be extended with additional keywords `x-oold-multilang-title` and `x-oold-multilang-description`, which hold and object with lang-keys (de, en, etc.) pointing to the translated strings.
+Mapping of `x-oold-multilang-title[lang]` must be provided by schema preprocessing.
 ```json
 {
     "title": "Default Title",
-    "title*": {"en": "Title (en)", "de": "Titel (de)"}
+    "x-oold-multilang-title": {"en": "Title (en)", "de": "Titel (de)"}
 }
 ```
 
 #### Range of properties
-JSON-SCHEMA itself supports linked data only in form of subobject. References to independent external object are just URL-strings without any further restrictions. To express constrains on the type of the object as we know it from OWL and SHACL the keyword `range` is introduced (see also [json-schema-org/json-schema-vocabularies#55](https://github.com/json-schema-org/json-schema-vocabularies/issues/55)). Note: Same as `$ref`, `range` must point to a resolvable resource.
+JSON-SCHEMA itself supports linked data only in form of subobject. References to independent external object are just URL-strings without any further restrictions. To express constrains on the type of the object as we know it from OWL and SHACL the keyword `x-oold-range` is introduced (see also [json-schema-org/json-schema-vocabularies#55](https://github.com/json-schema-org/json-schema-vocabularies/issues/55)). Note: Same as `$ref`, `x-oold-range` must point to a resolvable resource.
 
 ##### Draft v0.1:
 
-`range` is an IRI. While this is concise, there's no way to express unions and intersections of multiple schemas.
+`x-oold-range` is an IRI. While this is concise, there's no way to express unions and intersections of multiple schemas.
 
 ```json
 {
@@ -457,7 +478,7 @@ JSON-SCHEMA itself supports linked data only in form of subobject. References to
   "properties": {
     "works_for": {
       "type": "string",
-      "range": "schema:Organization",
+      "x-oold-range": "schema:Organization",
       "description": "IRI pointing to an instance of schema:Organization",
     }
   }
@@ -466,13 +487,13 @@ JSON-SCHEMA itself supports linked data only in form of subobject. References to
 
 ##### Draft v0.2:
 
-`range` is an OO-LD schema. By using `...Of` keywords, unions (`anyOf` / `oneOf`) and intersections (`allOf`) of multiple schemas can be expressed.
+`x-oold-range` is an OO-LD schema. By using `...Of` keywords, unions (`anyOf` / `oneOf`) and intersections (`allOf`) of multiple schemas can be expressed.
 
 This will allow the following constellations:
 
 ###### Inline type restriction
 ```json
-"range": {
+"x-oold-range": {
   "@context": {
     "schema": "http://schema.org/",
     "type": "@type"
@@ -489,7 +510,7 @@ This will allow the following constellations:
 
 ###### Reference to existing schema
 ```json
-"range": {
+"x-oold-range": {
   "allOf": {
     "$ref": "Organization.schema.json"
   }
@@ -515,7 +536,7 @@ This will allow the following constellations:
     },
     "works_for": {
       "type": "string",
-      "range": {
+      "x-oold-range": {
         "allOf": {
           "$ref": "Organization.schema.json"
         }
@@ -545,7 +566,7 @@ This will allow the following constellations:
 ```
 </details>
 
-On the downside, `range` may build up large schema graphs with circular paths which can raise issues in JSON-SCHEMA bundlers following all `$ref` relations. However, [JSON-SCHEMA]{#JSONSCHEMA202012} recommends standard bundlers not to follow `$ref` within custom keywords in [section 9.4.2](https://json-schema.org/draft/2020-12/json-schema-core#name-references-to-possible-non-). See also https://json-schema.org/blog/posts/bundling-json-schema-compound-documents.
+On the downside, `x-oold-range` may build up large schema graphs with circular paths which can raise issues in JSON-SCHEMA bundlers following all `$ref` relations. However, [JSON-SCHEMA]{#JSONSCHEMA202012} recommends standard bundlers not to follow `$ref` within custom keywords in [section 9.4.2](https://json-schema.org/draft/2020-12/json-schema-core#name-references-to-possible-non-). See also https://json-schema.org/blog/posts/bundling-json-schema-compound-documents.
 
 #### Reverse properties
 There are many cases were relations are summetric, e.g. Organization employees Person <=> Person worksFor Organization.
@@ -592,7 +613,7 @@ Example:
         "type": "string",
         "format": "autocomplete",
         "title": "Person",
-        "range": "Person.schema.json"
+        "x-oold-range": "Person.schema.json"
       }
     }
   }
@@ -623,7 +644,7 @@ Example:
         "type": "string",
         "title": "Organization",
         "format": "autocomplete",
-        "range": "Organization.schema.json"
+        "x-oold-range": "Organization.schema.json"
       }
     }
   }
@@ -653,7 +674,7 @@ In general we want to keep keywords in 'instance' JSON-documents (=> property na
     "name": "schema:name",
     "type": "@type"
   },
-  "iri": "ex:RawData",
+  "x-oold-iri": "ex:RawData",
   "title": "Person",
   "type": "object",
   "properties": {
@@ -682,7 +703,7 @@ class Person(BaseModel):
                 "name": "schema:name",
                 "type": "@type"
             },
-            "iri": "ex:RawData",  # the IRI of the class
+            "x-oold-iri": "ex:RawData",  # the IRI of the class
         }
     )
     type: Optional[str] = "schema:Person"
@@ -1249,7 +1270,7 @@ to get an auto-generated userinterface (based on https://github.com/json-editor/
 ![grafik](https://github.com/user-attachments/assets/a83d885c-b345-4676-b3af-8a9a29ebfed3)
 
 
-Populating `range` in combination with a proper backend allows user to created non-inlined objects on the fly or link (= store the IRI) to existing ones (see https://opensemantic.world / https://demo.open-semantic-lab.org):
+Populating `x-oold-range` in combination with a proper backend allows user to created non-inlined objects on the fly or link (= store the IRI) to existing ones (see https://opensemantic.world / https://demo.open-semantic-lab.org):
 
 ![grafik](https://github.com/user-attachments/assets/2e61fb48-b779-4b2d-88f3-c71098a605b5)
 
