@@ -15,13 +15,12 @@
     - [JSON-LD](#json-ld)
       - [Multi-Mapping](#multi-mapping)
     - [JSON-SCHEMA](#json-schema)
-      - [Multilanguange support](#multilanguange-support)
+      - [Multilanguage support](#multilanguage-support)
+        - [Localizing schema annotations](#localizing-schema-annotations)
+        - [Localizing instance values](#localizing-instance-values)
       - [Range of properties](#range-of-properties)
-        - [Draft v0.1:](#draft-v01)
-        - [Draft v0.2:](#draft-v02)
-          - [Inline type restriction](#inline-type-restriction)
-          - [Reference to existing schema](#reference-to-existing-schema)
-        - [Reverse properties](#reverse-properties)
+        - [Why x-oold-ref and not $ref](#why-x-oold-ref-and-not-ref)
+      - [Reverse properties](#reverse-properties)
       - [UI Generation](#ui-generation)
   - [Usecases](#usecases)
     - [Code Generation](#code-generation)
@@ -363,7 +362,7 @@ The `x-oold-*` keywords are:
 | `x-oold-iri` | Ontology IRI denoting the class described by the schema |
 | `x-oold-range` | Type constraint on an IRI-valued property (IRI, array of IRIs, or an OO-LD subschema) |
 | `x-oold-ref` | Reference to another OO-LD schema, resolved only by OO-LD-aware tools (use instead of `$ref` inside `x-oold-range`) |
-| `x-oold-multilang-title` / `x-oold-multilang-description` | Language maps of translated `title` / `description` |
+| `x-oold-multilang-title` / `x-oold-multilang-description` | Translations of `title` / `description` keyed by BCP-47 language tag |
 | `x-oold-reverse-properties` / `x-oold-reverse-required` / `x-oold-reverse-defaultProperties` | Reverse-property definitions (see [Reverse properties](#reverse-properties)) |
 
 ## Standard extensions
@@ -450,15 +449,78 @@ OO-LD targets [JSON-SCHEMA 2020-12](#JSONSCHEMA202012) as its normative dialect.
 
 Migration from the earlier Draft-4-style notation: rename `definitions` to `$defs`, `id` to `$id`, and use the numeric form of `exclusiveMinimum`/`exclusiveMaximum` instead of the boolean form.
 
-#### Multilanguange support
-Keywords `title` and `description` can be extended with additional keywords `x-oold-multilang-title` and `x-oold-multilang-description`, which hold and object with lang-keys (de, en, etc.) pointing to the translated strings.
-Mapping of `x-oold-multilang-title[lang]` must be provided by schema preprocessing.
+#### Multilanguage support
+
+There are two distinct localization concerns: translating a schema's own annotations, and translating a value carried by an instance.
+
+##### Localizing schema annotations
+
+The JSON-SCHEMA annotation keywords `title` and `description` carry a single, default human-readable string used by tooling (for example for UI generation). To provide localized variants, OO-LD adds the keywords `x-oold-multilang-title` and `x-oold-multilang-description`.
+
+Their value MUST be an object whose keys are [BCP 47](https://www.rfc-editor.org/info/bcp47) language tags (e.g. `en`, `de`, `en-GB`) and whose values are the translated strings. A schema SHOULD still provide a default `title` / `description`; a consumer that has no entry for the requested language falls back to that default. These keywords localize the schema's *own* labels and are not interpreted as JSON-LD.
+
 ```json
 {
     "title": "Default Title",
-    "x-oold-multilang-title": {"en": "Title (en)", "de": "Titel (de)"}
+    "description": "Default description",
+    "x-oold-multilang-title": { "en": "Title (en)", "de": "Titel (de)" },
+    "x-oold-multilang-description": { "en": "Description (en)", "de": "Beschreibung (de)" }
 }
 ```
+
+##### Localizing instance values
+
+To localize a *value of an instance* - a translatable string in the data that should round-trip to language-tagged RDF literals - do not use the keywords above. Use the standard JSON-LD mechanism. There are two equivalent JSON-LD-native ways to carry such a value, both producing the same language-tagged literals:
+
+**Explicit** - model the value as an object that pairs its text with its language by aliasing `text` to `@value` and `lang` to `@language`. This form is convenient for form-based editors, where each translation is an editable row (note that the schema's own labels are localized with `x-oold-multilang-title`):
+
+```json
+{
+  "@context": {
+    "text": { "@id": "@value" },
+    "lang": { "@id": "@language" }
+  },
+  "$id": "Label.schema.json",
+  "title": "Label",
+  "type": "object",
+  "required": ["text", "lang"],
+  "properties": {
+    "text": {
+      "title": "Text",
+      "x-oold-multilang-title": { "de": "Text" },
+      "type": "string",
+      "minLength": 1
+    },
+    "lang": {
+      "title": "Lang code",
+      "x-oold-multilang-title": { "de": "Sprache" },
+      "type": "string",
+      "enum": ["en", "de"]
+    }
+  }
+}
+```
+
+A property typed as an array of `Label` then holds one entry per language, e.g. `[{ "text": "Water", "lang": "en" }, { "text": "Wasser", "lang": "de" }]`.
+
+**Compact** - a language map keyed directly by language tag, via `@container: @language` (see [JSON-LD 1.1, Language Maps](https://www.w3.org/TR/json-ld11/#language-maps)):
+
+```json
+{
+  "@context": {
+    "label": { "@id": "http://schema.org/name", "@container": "@language" }
+  },
+  "type": "object",
+  "properties": {
+    "label": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
+  }
+}
+```
+
+An instance such as `{ "label": { "en": "Water", "de": "Wasser" } }` expands to the same two language-tagged literals as the explicit form.
 
 #### Range of properties
 JSON-SCHEMA itself supports linked data only in the form of a subobject. References to independent external objects are just URL-strings without any further restrictions. To express constraints on the type of the referenced object - as we know it from OWL and SHACL - the keyword `x-oold-range` is introduced (see also [json-schema-org/json-schema-vocabularies#55](https://github.com/json-schema-org/json-schema-vocabularies/issues/55)).
