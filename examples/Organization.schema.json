@@ -5,10 +5,20 @@
   "x-oold-version": "1.0.0",
   "@context": [
     "Thing.schema.json",
-    { "schema": "http://schema.org/" }
+    {
+      "schema": "http://schema.org/",
+      "address": { "@id": "schema:address", "@context": "Address.schema.json" }
+    }
   ],
   "title": "Organization",
   "x-oold-multilang-title": { "en": "Organization", "de": "Organisation" },
   "allOf": [ { "$ref": "Thing.schema.json" } ],
-  "type": "object"
+  "type": "object",
+  "properties": {
+    "address": {
+      "type": "object",
+      "$ref": "Address.schema.json",
+      "description": "Postal address of the organization"
+    }
+  }
 }
