@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "Researcher.schema.json",
+  "x-oold-uuid": "d7425353-9543-48dd-ac33-ce5f3137a62a",
+  "x-oold-version": "1.0.0",
+  "@context": [
+    "Person.schema.json",
+    {
+      "schema": "http://schema.org/",
+      "affiliation": "schema:affiliation"
+    }
+  ],
+  "title": "Researcher",
+  "x-oold-multilang-title": { "en": "Researcher", "de": "Forscher" },
+  "allOf": [ { "$ref": "Person.schema.json" } ],
+  "type": "object",
+  "properties": {
+    "affiliation": {
+      "type": "string",
+      "format": "autocomplete",
+      "description": "A German organization the researcher is affiliated with",
+      "x-oold-range": {
+        "allOf": [
+          { "x-oold-ref": "Organization.schema.json" },
+          { "properties": { "address": { "properties": { "country": { "const": "DE" } } } } }
+        ]
+      }
+    }
+  }
+}

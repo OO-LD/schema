@@ -461,11 +461,11 @@ Mapping of `x-oold-multilang-title[lang]` must be provided by schema preprocessi
 ```
 
 #### Range of properties
-JSON-SCHEMA itself supports linked data only in form of subobject. References to independent external object are just URL-strings without any further restrictions. To express constrains on the type of the object as we know it from OWL and SHACL the keyword `x-oold-range` is introduced (see also [json-schema-org/json-schema-vocabularies#55](https://github.com/json-schema-org/json-schema-vocabularies/issues/55)). Note: Same as `$ref`, `x-oold-range` must point to a resolvable resource.
+JSON-SCHEMA itself supports linked data only in the form of a subobject. References to independent external objects are just URL-strings without any further restrictions. To express constraints on the type of the referenced object - as we know it from OWL and SHACL - the keyword `x-oold-range` is introduced (see also [json-schema-org/json-schema-vocabularies#55](https://github.com/json-schema-org/json-schema-vocabularies/issues/55)).
 
-##### Draft v0.1:
+`x-oold-range` takes one of three forms:
 
-`x-oold-range` is an IRI. While this is concise, there's no way to express unions and intersections of multiple schemas.
+1. An **IRI** (string) referencing a single allowed target schema. This is the common case:
 
 ```json
 {
@@ -478,95 +478,41 @@ JSON-SCHEMA itself supports linked data only in form of subobject. References to
   "properties": {
     "works_for": {
       "type": "string",
-      "x-oold-range": "schema:Organization",
-      "description": "IRI pointing to an instance of schema:Organization",
+      "x-oold-range": "Organization.schema.json",
+      "description": "IRI pointing to an instance of Organization"
     }
   }
 }
 ```
 
-##### Draft v0.2:
+2. An **array of IRIs**, expressing a union of allowed target schemas, e.g. `["Organization.schema.json", "Person.schema.json"]`.
 
-`x-oold-range` is an OO-LD schema. By using `...Of` keywords, unions (`anyOf` / `oneOf`) and intersections (`allOf`) of multiple schemas can be expressed.
+3. An **OO-LD subschema**, the most expressive form. Unions (`anyOf` / `oneOf`), intersections (`allOf`) and inline constraints can be combined to describe an anonymous subclass. References to other schemas inside `x-oold-range` MUST use `x-oold-ref`, never `$ref` (see below). The single-IRI form (1) is a shorthand for this:
 
-This will allow the following constellations:
+```json
+"x-oold-range": { "allOf": [ { "x-oold-ref": "Organization.schema.json" } ] }
+```
 
-###### Inline type restriction
+For example, to require that the target is an `Organization` located in Germany:
+
 ```json
 "x-oold-range": {
-  "@context": {
-    "schema": "http://schema.org/",
-    "type": "@type"
-  },
-  "properties": {
-    "type": {
-      "type": "string",
-      "const": "schema:Organization",
-    }
-  }
+  "allOf": [
+    { "x-oold-ref": "Organization.schema.json" },
+    { "properties": { "address": { "properties": { "country": { "const": "DE" } } } } }
+  ]
 }
 ```
 
+A range subschema MAY also carry additional annotations (e.g. `title`, `description` or further `x-oold-*` keywords) to support tooling - for example a human-readable label for an autocomplete dropdown, or hints used when generating a SHACL shape.
 
-###### Reference to existing schema
-```json
-"x-oold-range": {
-  "allOf": {
-    "$ref": "Organization.schema.json"
-  }
-}
-```
-<details>
-<summary>Full Example:</summary>
+##### Why `x-oold-ref` and not `$ref`
 
-```json
-{
-  "@context": {
-    "schema": "http://schema.org/",
-    "works_for": "schema:worksFor",
-    "type": "@type"
-  },
-  "$id": "Person.schema.json",
-  "title": "Person",
-  "type": "object",
-  "properties": {
-    "type": {
-      "type": "string",
-      "const": "schema:Person",
-    },
-    "works_for": {
-      "type": "string",
-      "x-oold-range": {
-        "allOf": {
-          "$ref": "Organization.schema.json"
-        }
-      },
-      "description": "IRI pointing to an instance of schema:Organization",
-    }
-  }
-}
-```
+`x-oold-range` is a custom keyword, so a `$ref` placed inside it is undefined behavior for generic JSON-SCHEMA tooling (see [2020-12 Core section 9.4.2](https://json-schema.org/draft/2020-12/json-schema-core#section-9.4.2)). In practice the behavior is not merely undefined but inconsistent: generic reference resolvers eagerly inline such a `$ref`, and because `x-oold-range` targets can form a cyclic graph of schemas this can pull in an unbounded graph, while schema-aware bundlers instead drop it.
 
-```json
-{
-  "@context": {
-    "schema": "http://schema.org/",
-    "type": "@type"
-  },
-  "$id": "Organization.schema.json",
-  "title": "Organization",
-  "type": "object",
-  "properties": {
-    "type": {
-      "type": "string",
-      "const": "schema:Organization",
-    }
-  }
-}
-```
-</details>
+`x-oold-ref` avoids this. Generic tools only follow the standard `$ref` keyword, so they leave `x-oold-ref` untouched; OO-LD-aware tools resolve it deliberately and lazily, with cycle detection (for example to populate an autocomplete field or to generate a SHACL shape). The standard `$ref` continues to be used for ordinary schema composition (`allOf`, `properties`, `$defs`), which bundlers are expected to resolve.
 
-On the downside, `x-oold-range` may build up large schema graphs with circular paths which can raise issues in JSON-SCHEMA bundlers following all `$ref` relations. However, [JSON-SCHEMA]{#JSONSCHEMA202012} recommends standard bundlers not to follow `$ref` within custom keywords in [section 9.4.2](https://json-schema.org/draft/2020-12/json-schema-core#name-references-to-possible-non-). See also https://json-schema.org/blog/posts/bundling-json-schema-compound-documents.
+Because the only difference from a standard reference is the keyword name, the mapping is reversible: an OO-LD-aware tool can mechanically replace `x-oold-ref` with `$ref` to obtain a plain JSON-SCHEMA whose range subschemas become fully resolvable and bundleable by generic tooling - useful when a consumer deliberately wants the composed, dereferenced schema. By default `x-oold-ref` leaves the (possibly cyclic) graph unresolved; swapping it to `$ref` is the explicit opt-in to resolution.
 
 #### Reverse properties
 There are many cases were relations are summetric, e.g. Organization employees Person <=> Person worksFor Organization.
