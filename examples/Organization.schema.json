@@ -3,6 +3,7 @@
   "$id": "Organization.schema.json",
   "x-oold-uuid": "c6314242-8432-57cc-9b22-bd4e2026951f",
   "x-oold-version": "1.0.0",
+  "x-oold-instance-rdf-type": ["schema:Organization"],
   "@context": [
     "Thing.schema.json",
     {
