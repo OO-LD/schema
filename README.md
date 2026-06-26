@@ -502,7 +502,7 @@ The `x-oold-*` keywords are:
 | `x-oold-range` | Type constraint on an IRI-valued property (IRI, array of IRIs, or an OO-LD subschema) |
 | `x-oold-ref` | Reference to another OO-LD schema, resolved only by OO-LD-aware tools (use instead of `$ref` inside `x-oold-range`) |
 | `x-oold-multilang-title` / `x-oold-multilang-description` | Translations of `title` / `description` keyed by BCP-47 language tag |
-| `x-oold-reverse-properties` / `x-oold-reverse-required` / `x-oold-reverse-defaultProperties` | Reverse-property definitions (see [Reverse properties](#reverse-properties)) |
+| `x-oold-reverse-properties` / `x-oold-reverse-required` / `x-oold-reverse-default-properties` | Reverse-property definitions (see [Reverse properties](#reverse-properties)) |
 
 ## Standard extensions
 
@@ -770,7 +770,7 @@ Example:
     "...": {}
   },
   "x-oold-reverse-required": [],
-  "x-oold-reverse-defaultProperties": [
+  "x-oold-reverse-default-properties": [
     "employees"
   ],
   "x-oold-reverse-properties": {
