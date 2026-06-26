@@ -1186,14 +1186,18 @@ Example (see [AddressAspect.ttl](https://github.com/eclipse-tractusx/sldt-semant
   "type" : "object",
   "properties" : {
     "type": {
-      "const": "PostalAddress"
+      "type": "array",
+      "items": { "type": "string" },
+      "default": ["PostalAddress"]
     },
     "postCode" : {
       "description" : "Postal code of the address. Entity for a postcode which consists of a type plus a value.",
       "type" : "object",
       "properties" : {
         "type": {
-          "const": "PostCodeEntity"
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["PostCodeEntity"]
         },
         "value" : {
           "description" : "The value of a post code.",
