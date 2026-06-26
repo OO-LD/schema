@@ -749,6 +749,8 @@ To make `employees` the reverse property of `organization` we have to
 * map `employees` with `@reverse` in the `@context` of Organization to the same property, compliant to [JSON-LD @reverse](https://www.w3.org/TR/json-ld11/#reverse-properties)
 
 Example:
+
+**Organization.schema.json**
 ```json
 {
   "@context": [
@@ -785,8 +787,8 @@ Example:
   }
 }
 ```
-> Organization.schema.json
 
+**Person.schema.json**
 ```json
 {
   "@context": [
@@ -816,7 +818,6 @@ Example:
   }
 }
 ```
-> Person.schema.json
 
 An OO-LD aware implementation can make use of this annotation to allow to read and modify properties that are actually stored in another object. E.g., When loading a UI editor for an Organization, the editor will prepopulate the field `employees` by executing the query "Which persons work for this organization"?
 
@@ -846,8 +847,9 @@ In general, we want to keep keywords in 'instance' JSON-documents (=> property n
   "type": "object",
   "properties": {
     "type": {
-      "type": "string",
-      "default": "schema:Person"
+      "type": "array",
+      "items": { "type": "string"},
+      "default": ["schema:Person"]
     },
     "name": {
       "type": "string",
@@ -1040,6 +1042,7 @@ Both security consideration of [JSON-LD v1.1 section C](https://www.w3.org/TR/20
 
 Asset Administration Shell combines schema and data in a single documents. Semantics are introduced by annotations keywords.
 
+**AAS**
 ```yml
 - assetInformation:
     assetKind: Instance
@@ -1065,14 +1068,14 @@ Asset Administration Shell combines schema and data in a single documents. Seman
     value: exampleValue
     valueType: xs:string
 ```
-> AAS
 
+**OO-LD Schemas**
 ```yml
 - id: https://example.org/Simple_AAS
   x-aas-modelType: AssetAdministrationShell
 
 - id: https://example.org/Simple_Submodel
-  @context:
+  "@context":
     ExampleProperty: http://example.org/Properties/SimpleProperty
   x-aas-modelType: Submodel
   allOf: 
@@ -1082,19 +1085,21 @@ Asset Administration Shell combines schema and data in a single documents. Seman
       type: string
       default: exampleValue # works like a template
 ```
-> OO-LD Schemas
 
+
+**Data**
 ```yml
-@context: https://example.org/Simple_Submodel
+"@context": https://example.org/Simple_Submodel
 $schema: https://example.org/Simple_Submodel
 ExampleProperty: exampleValue
 ```
-> Data
 
 ### Semantic Aspect Meta Model
 [Semantic Aspect Meta Model (SAMM)](https://docs.bosch-semantic-stack.com/oss/samm-specification.html) is a lightweight language to model (partial) objects (aspects) and their properties. While building on RDF and using turtle as serialization SAMM forms tree like structures like JSON Schema. Instead of IRIs, Ressources are identified with URNs which are not meant to be resolveable in the sense of linked data / semantic web.
 
 Example (see [AddressAspect.ttl](https://github.com/eclipse-tractusx/sldt-semantic-models/blob/main/io.catenax.shared.address_characteristic/4.0.0/AddressAspect.ttl) for an address, stripping everything but the post code attribute):
+
+**SAMM**
 ```turtle
 
 @prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .
@@ -1164,9 +1169,9 @@ Example (see [AddressAspect.ttl](https://github.com/eclipse-tractusx/sldt-semant
    samm:dataType xsd:string ;
    samm-c:values ( "CEDEX" "LARGE_MAIL_USER" "OTHER" "POST_BOX" "REGULAR" ) .
 ```
-> SAMM
 
 
+**OO-LD schema** (see also [generated JSON-SCHEMA](https://github.com/eclipse-tractusx/sldt-semantic-models/blob/main/io.catenax.shared.address_characteristic/4.0.0/gen/AddressAspect.json))
 ```json
 {
   "@context": {
@@ -1208,8 +1213,8 @@ Example (see [AddressAspect.ttl](https://github.com/eclipse-tractusx/sldt-semant
   "required" : [ "postCode", "..." ]
 }
 ```
-> OO-LD schema (see also [generated JSON-SCHEMA](https://github.com/eclipse-tractusx/sldt-semantic-models/blob/main/io.catenax.shared.address_characteristic/4.0.0/gen/AddressAspect.json))
 
+**Data instance**
 ```json
 {
   "address" : {
@@ -1220,7 +1225,6 @@ Example (see [AddressAspect.ttl](https://github.com/eclipse-tractusx/sldt-semant
   }
 }
 ```
-> Data instance
 
 ### LinkML
 
@@ -1576,6 +1580,7 @@ by using the following mapping (work in progress):
 
 [Dlite](https://github.com/SINTEF/dlite) already uses JSON Schema keywords like `properties`, `type` and `description`. Similar to NOMAD, annotations `unit` declare the unit of measure of quantity values and `shape` is used to describe array dimensions. However, different from NOMAD, `shape` refers to parameters declared under `dimensions`.  
 
+**Person.dlite.yml**
 ```yaml
 uri: http://onto-ns.com/meta/0.1/Person # identifier of the schema document
 meta: http://onto-ns.com/meta/0.3/EntitySchema # links to a meta schema as type
@@ -1598,10 +1603,10 @@ properties:
     shape: [nskills]
     description: List of skills.
 ```
-> Person.dlite.yml
 
-To overcome the missing expressivness in JSON-SCHEMA alone, specific JSON-LD `@type` annotations can be used (here `xsd:float`). `dimension`, `unit`, and `shape` can be expressed with custom keywords, prefixed by `x-dlite-`.
 To overcome the missing expressiveness in JSON Schema alone, specific JSON-LD `@type` annotations can be used (here `xsd:float`). `dimension`, `unit`, and `shape` can be expressed with custom keywords, prefixed by `x-dlite-`.
+
+**Person.oold.yml**
 ```yaml
 "@context":
   xsd: http://www.w3.org/2001/XMLSchema
@@ -1632,13 +1637,12 @@ properties:
     items:
       type: string
 ```
-> Person.oold.yml
 
 #### Instance
 
 On the instance level the main difference is the nesting of properties within a `properties` subobject. This can be interpreted as JSON-LD [nested-properties](https://www.w3.org/TR/json-ld/#nested-properties). Links to other instance documents are UUIDs which should be interpreted as `urn:uuid`.
 
-
+**SherlockHolmes.dlite.yml**
 ```yaml
 "@context":
   - /remote/context/of/Person
@@ -1656,8 +1660,8 @@ properties:
     - violin
     - boxind
 ```
-> SherlockHolmes.dlite.yml
 
+**SherlockHolmes.oold.yml**
 ```yaml
 "@context": http://onto-ns.com/meta/0.1/Person
 $schema: http://onto-ns.com/meta/0.1/Person
@@ -1671,4 +1675,3 @@ skills:
   - violin
   - boxind
 ```
-> SherlockHolmes.oold.yml
