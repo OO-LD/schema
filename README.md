@@ -400,6 +400,24 @@ x-oold-uuid: b5203131-7321-46bb-8a11-acb3d1015840
 title: Foo
 ```
 
+## Ontology class IRI (`x-oold-iri`)
+
+`x-oold-iri` declares the IRI of the ontology class that this schema realizes - the RDF/OWL class from an external vocabulary that gives the schema its semantic grounding. It is distinct from two related IRIs:
+
+- `$id` - the URL of the schema document (where to fetch it). A schema document is a retrievable artifact, not an OWL class.
+- `x-oold-instance-rdf-type` - the rdf:types that instances carry on export (see [Carrying the semantic type](#carrying-the-semantic-type)). These are stamped onto instance data; `x-oold-iri` describes the schema itself.
+
+```yaml
+$id: https://example.org/my-package/1.0.0/Person.schema.json
+x-oold-iri: https://schema.org/Person
+x-oold-instance-rdf-type: ["schema:Person"]
+title: Person
+```
+
+In this example, the schema document is fetched from the `$id` URL, it realizes the ontology class `schema:Person`, and instances exported to RDF carry `@type: schema:Person`. The most common case is that `x-oold-iri` and the entries in `x-oold-instance-rdf-type` resolve to the same IRI, but they may differ - for example when a schema models a more specific subclass inline while still emitting a broader rdf:type on instances.
+
+OO-LD-aware tooling uses `x-oold-iri` to anchor the schema in an ontology graph, independently of where the schema document is hosted - for example to resolve super-classes, look up ontology annotations, or generate SHACL shapes.
+
 ## Versioning
 see also
 - https://semver.org/
