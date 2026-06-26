@@ -128,6 +128,8 @@ Note the asymmetry between how schemas and instances are consumed:
 
 This asymmetry is what lets a single document serve both as a JSON-SCHEMA `$ref` target and as a JSON-LD remote `@context` for the same resource. Concretely: an instance is processed directly as a JSON-LD document (e.g. `jsonld.toRDF(instance)`), which loads the schema as a remote context via the instance's `@context`; a schema is only ever referenced as that context and MUST NOT itself be expanded as a document (`jsonld.toRDF(schema)` would wrongly apply the schema's own `@context` to it).
 
+The diagram below shows **inheritance**: Class B extends Class A by referencing it in both `allOf` (so JSON-Schema validators apply A's rules when validating B instances) and `@context` (so JSON-LD processors resolve A's term mappings). B instances are therefore valid A instances and carry all of A's properties alongside B's own additions.
+
 ```mermaid
 %%{init: {'theme': 'neutral' } }%%
 classDiagram
@@ -160,6 +162,8 @@ classDiagram
 You can read how this is implemented in OpenSemanticWorld/Lab in the [introduction](https://opensemantic.world/wiki/Item:OSWdb485a954a88465287b341d2897a84d6) and [schema documentation draft](https://opensemantic.world/wiki/Item:OSWab674d663a5b472f838d8e1eb43e6784).
 
 ## Composition
+
+Composition is how an OO-LD schema incorporates multiple independent schemas, each contributing its own properties and JSON-LD term mappings, without requiring a shared parent class. This lets you build complex types by assembling reusable building blocks - for example, attaching a geolocation schema and a contact schema to a single resource type. The rules below govern how the resulting `@context` is assembled automatically, so that no post-processing step is needed.
 
 It MUST NOT be require to further process an OO-LD Schema document in order to interpret it as JSON-LD context. This implies that all occurrences of `$ref` in the schema are reflected in the JSON-LD context. `$ref` within properties of `type: object` MUST be listed as scoped JSON-LD context. `$ref` within all other property types and at the root level of the OO-LD schema MUST be listed at the root level of the JSON-LD context. In case of multiple `$ref` within `allOf` the corresponding remote contexts are merged into an array-valued `@context` (see [Merging remote contexts](#merging-remote-contexts)). 
 For `oneOf` / `anyOf` this requires care to avoid conflicts (see [Merging remote contexts](#merging-remote-contexts)).
