@@ -503,11 +503,11 @@ The `x-oold-*` keywords are:
 | `x-oold-uuid` | Stable UUID identifying the schema across versions and locations |
 | `x-oold-version` / `x-oold-prior-version` | Semantic version of the schema, and its predecessor |
 | `x-oold-backward-compatible-with` / `x-oold-incompatible-with` | URIs of prior versions this schema is / is not compatible with |
-| `x-oold-iri` | Ontology IRI denoting the class described by the schema |
-| `x-oold-instance-rdf-type` | rdf:type(s) instances carry, as a list of IRIs; materialized as `@type` on export |
-| `x-oold-range` | Type constraint on an IRI-valued property (IRI, array of IRIs, or an OO-LD subschema) |
-| `x-oold-ref` | Reference to another OO-LD schema, resolved only by OO-LD-aware tools (use instead of `$ref` inside `x-oold-range`) |
-| `x-oold-multilang-title` / `x-oold-multilang-description` | Translations of `title` / `description` keyed by BCP-47 language tag |
+| `x-oold-iri` | [Ontology IRI denoting the class described by the schema](#ontology-class-iri-x-oold-iri) |
+| `x-oold-instance-rdf-type` | [rdf:type(s) instances carry, as a list of IRIs; materialized as `@type` on export](#carrying-the-semantic-type) |
+| `x-oold-range` | [Type constraint on an IRI-valued property (IRI, array of IRIs, or an OO-LD subschema)](#range-of-properties) |
+| `x-oold-ref` | [Reference to another OO-LD schema, resolved only by OO-LD-aware tools (use instead of `$ref` inside `x-oold-range`)](#why-x-oold-ref-and-not-ref) |
+| `x-oold-multilang-title` / `x-oold-multilang-description` | [Translations of `title` / `description` keyed by BCP-47 language tag](#localizing-schema-annotations) |
 | `x-oold-reverse-properties` / `x-oold-reverse-required` / `x-oold-reverse-defaultProperties` | Reverse-property definitions (see [Reverse properties](#reverse-properties)) |
 
 ## Standard extensions
