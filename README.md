@@ -292,19 +292,7 @@ Where branches genuinely need different mappings for the same keyword, do not pl
 
 **Protected terms (`@protected`).** A schema MAY mark terms `@protected` to prevent later contexts from silently redefining them. When contexts are combined via `allOf`, redefining a protected term to a different IRI is an error unless the new definition is identical; property-scoped contexts are exempt and may override protected terms within their subtree. Relying on `@protected` therefore constrains which schemas a schema can be combined with.
 
-**Independent references and base URIs.** A JSON Schema `$ref` and a JSON-LD `@context` entry are independent references: they MAY point to the same document (the typical OO-LD case, where one document is both a schema and a context) or to different documents - for example a plain JSON Schema referenced via `$ref` together with a separate remote `@context` that supplies the semantics. Relative references resolve against the schema's `$id` (the JSON SchemaA base URI) and, on the JSON-LD side, against `@base` / the retrieval URL; these base URIs SHOULD be aligned so a relative reference resolves to the same absolute URL under both. `$id` MUST NOT contain a non-empty fragment ( [JSON Schema Core 8.2.1](https://json-schema.org/draft/2020-12/json-schema-core#section-8.2.1)).
-
-### Merging remote contexts
-
-**Multiple `$ref` (e.g. in `allOf`)** each correspond to a remote context. By the reflection rule above, the schema's own `@context` MUST list those remote contexts as an **array**, in the same order as the `allOf` members, so the schema stays usable as a context without further processing. A JSON-LD processor then resolves that array in order, later entries overriding earlier ones - "Duplicate context terms are overridden using a most-recently-defined-wins mechanism" ([JSON-LD 1.1, 4.1.5](https://www.w3.org/TR/json-ld11/#advanced-context-usage)). The schema MAY append its own context object as the last array entry to override an inherited term. The single-context `@import` keyword is an alternative only when exactly one remote context is wrapped and locally modified (it cannot contain a nested `@import`), so the array form is used for the multi-`$ref` case.
-
-**`oneOf` / `anyOf`.** The remote contexts of `oneOf` / `anyOf` branches MAY also be reflected into the `@context`, but they MUST NOT conflict - they MUST NOT map the same keyword to different IRIs. A JSON-LD processor merges all listed contexts (most-recently-wins) and has no notion of which branch a given instance matched, so a conflicting mapping would be decided by context order rather than by the branch the data conforms to. Where branches genuinely need different mappings for the same keyword, scope them with property-scoped or type-scoped contexts so each mapping applies only within its property or `@type`, instead of at the root.
-
-**Propagation (`@propagate`).** A `$ref` inside a `type: object` property is reflected as a property-scoped context, which by default propagates into the whole subtree rooted at that property ("By default ... contexts propagate across node objects, other than for type-scoped contexts, which default to false"). Where a referenced context should apply only to the immediate node, the schema MUST set `"@propagate": false` on that scoped context. Contexts combined in a single array MUST share the same `@propagate` value.
-
-**Protected terms (`@protected`).** A schema MAY mark terms `@protected` to prevent later contexts from silently redefining them. When contexts are combined via `allOf`, redefining a protected term to a different IRI is an error unless the new definition is identical; property-scoped contexts are exempt and may override protected terms within their subtree. Relying on `@protected` therefore constrains which schemas a schema can be combined with.
-
-**Independent references and base URIs.** A JSON Schema `$ref` and a JSON-LD `@context` entry are independent references: they MAY point to the same document (the typical OO-LD case, where one document is both a schema and a context) or to different documents - for example a plain JSON Schema referenced via `$ref` together with a separate remote `@context` that supplies the semantics. Relative references resolve against the schema's `$id` (the JSON SchemaA base URI) and, on the JSON-LD side, against `@base` / the retrieval URL; these base URIs SHOULD be aligned so a relative reference resolves to the same absolute URL under both. `$id` MUST NOT contain a non-empty fragment ([JSON Schema Core 8.2.1](https://json-schema.org/draft/2020-12/json-schema-core#section-8.2.1)).
+**Independent references and base URIs.** A JSON Schema `$ref` and a JSON-LD `@context` entry are independent references: they MAY point to the same document (the typical OO-LD case, where one document is both a schema and a context) or to different documents - for example a plain JSON Schema referenced via `$ref` together with a separate remote `@context` that supplies the semantics. Relative references resolve against the schema's `$id` (the JSON Schema base URI) and, on the JSON-LD side, against `@base` / the retrieval URL; these base URIs SHOULD be aligned so a relative reference resolves to the same absolute URL under both. `$id` MUST NOT contain a non-empty fragment ([JSON Schema Core 8.2.1](https://json-schema.org/draft/2020-12/json-schema-core#section-8.2.1)).
 
 ## Schema Instances
 
@@ -1193,7 +1181,7 @@ Example (see [AddressAspect.ttl](https://github.com/eclipse-tractusx/sldt-semant
 ```
 
 
-**OO-LD schema** (see also [generated JSON-SCHEMA](https://github.com/eclipse-tractusx/sldt-semantic-models/blob/main/io.catenax.shared.address_characteristic/4.0.0/gen/AddressAspect.json))
+**OO-LD schema** (see also [generated JSON Schema](https://github.com/eclipse-tractusx/sldt-semantic-models/blob/main/io.catenax.shared.address_characteristic/4.0.0/gen/AddressAspect.json))
 ```json
 {
   "@context": {
