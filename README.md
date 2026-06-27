@@ -364,13 +364,13 @@ A schema declares the rdf:type(s) of its instances with the `x-oold-instance-rdf
 
 These types live in the schema, not in the instance data, so a JSON-LD-only processor - which sees only the instance and its `@context` - cannot derive them. Therefore, when OO-LD tooling **exports** an instance (to JSON-LD / RDF), it MUST materialize the declared rdf:type(s) as an `@type` on the instance, so that the type reaches RDF without access to the schema or to a type registry.
 
-Alternatively, an instance MAY carry the type inline as a `type` property (self-describing data). The schema maps the `type` term to the JSON-LD keyword `@type` (with `@type: @id` coercion) and gives it a `default`; the value MAY be a single IRI or a list of IRIs, and this property named `type` is distinct from the JSON Schema `type` keyword:
+Alternatively, an instance MAY carry the type inline as a `type` property (self-describing data). The schema maps the `type` term to the JSON-LD keyword `@type` with a simple alias and gives it a `default`; the value MAY be a single IRI or a list of IRIs, and this property named `type` is distinct from the JSON Schema `type` keyword. No `@type: @id` coercion is needed because JSON-LD already interprets `@type` values as IRIs:
 
 ```json
 {
   "@context": {
     "schema": "http://schema.org/",
-    "type": { "@id": "@type", "@type": "@id" }
+    "type": "@type"
   },
   "type": "object",
   "properties": {
