@@ -935,17 +935,33 @@ An OO-LD schema carries its semantics in the top-level `@context`. When the sche
 
 **MCP and tool-use / structured output.** An [MCP](https://modelcontextprotocol.io) tool's `inputSchema` (and the `outputSchema` added in the 2025-06-18 revision) is an ordinary JSON Schema object whose keywords MCP does not restrict, so a top-level `@context` is carried through unchanged over `tools/list`. Tool-use and structured-output APIs accept such a schema, and the model uses the context as grounding: in a roundtrip where an MCP server advertised a tool with two opaque properties `a` and `b` mapped through `@context` to `schema:familyName` and `schema:givenName`, the client received the `@context` intact and the model filled the fields by the IRIs (`a = "Mustermann"`, `b = "Max"`) rather than by surface order. An OO-LD schema can therefore be used directly as an MCP tool schema or a structured-output schema, with no relocation. The exception is a strict provider subset that rejects unknown keywords; there, fold the IRIs into the `title` / `description` annotations the model also reads.
 
-**OpenAPI.** OpenAPI 3.1 Schema Objects are JSON Schema 2020-12 and accept arbitrary keywords, so the native `@context` is used as-is. OpenAPI 3.0 Schema Objects reject unregistered keywords unless prefixed with `x-`, and a single OpenAPI document usually bundles several classes under `components/schemas`, where there is no document root to host one `@context`. Both are addressed by the IETF draft [REST API Linked Data Keywords](https://datatracker.ietf.org/doc/html/draft-polli-restapi-ld-keywords-08), which places a JSON-LD context and type on **each** Schema Object via `x-jsonld-context` and `x-jsonld-type` (valid for all OpenAPI versions >= 3.0). An OO-LD schema maps to them per class, mechanically and losslessly: `@context` -> `x-jsonld-context`, `x-oold-instance-rdf-type` -> `x-jsonld-type`.
+**OpenAPI.** OpenAPI 3.1 Schema Objects are JSON Schema 2020-12 and accept arbitrary keywords, so the native `@context` is used as-is. OpenAPI 3.0 Schema Objects reject unregistered keywords unless prefixed with `x-`, and a single OpenAPI document usually bundles several classes under `components/schemas`, where there is no document root to host one `@context`. Both are addressed by the IETF draft [REST API Linked Data Keywords](https://datatracker.ietf.org/doc/html/draft-polli-restapi-ld-keywords-08), which places a JSON-LD context and type on **each** Schema Object via `x-jsonld-context` and `x-jsonld-type` (valid for all OpenAPI versions >= 3.0). An OO-LD schema maps to them per class, mechanically and losslessly: `@context` -> `x-jsonld-context` (whose value is any valid JSON-LD context - object, array, or URL string, [draft Section 2.2](https://datatracker.ietf.org/doc/html/draft-polli-restapi-ld-keywords-08#section-2.2)), and `x-oold-instance-rdf-type` -> `x-jsonld-type` (whose value is whatever the JSON-LD `@type` keyword accepts - a single IRI or an array of IRIs, [JSON-LD 1.1 Section 3.5](https://www.w3.org/TR/json-ld11/#specifying-the-type)). The mapping is reversible, so an OpenAPI 3.0 export can be read back into an OO-LD schema.
+
+For example, this OO-LD schema:
+
+```json
+{
+  "$id": "https://example.org/Person.schema.json",
+  "@context": { "schema": "http://schema.org/", "name": "schema:name" },
+  "x-oold-instance-rdf-type": ["schema:Person"],
+  "type": "object",
+  "properties": { "name": { "type": "string" } },
+  "required": ["name"]
+}
+```
+
+maps to the following OpenAPI 3.0 document, one Schema Object per class (the `$id` becomes the `components/schemas` key, and a cross-class `$ref` is rewritten to `#/components/schemas/<Class>`):
 
 ```json
 {
   "components": {
     "schemas": {
       "Person": {
-        "x-jsonld-type": ["schema:Person"],
         "x-jsonld-context": { "schema": "http://schema.org/", "name": "schema:name" },
+        "x-jsonld-type": ["schema:Person"],
         "type": "object",
-        "properties": { "name": { "type": "string" } }
+        "properties": { "name": { "type": "string" } },
+        "required": ["name"]
       }
     }
   }
