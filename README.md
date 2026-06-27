@@ -294,6 +294,14 @@ Where branches genuinely need different mappings for the same keyword, do not pl
 
 **Independent references and base URIs.** A JSON Schema `$ref` and a JSON-LD `@context` entry are independent references: they MAY point to the same document (the typical OO-LD case, where one document is both a schema and a context) or to different documents - for example a plain JSON Schema referenced via `$ref` together with a separate remote `@context` that supplies the semantics. Relative references resolve against the schema's `$id` (the JSON Schema base URI) and, on the JSON-LD side, against `@base` / the retrieval URL; these base URIs SHOULD be aligned so a relative reference resolves to the same absolute URL under both. `$id` MUST NOT contain a non-empty fragment ([JSON Schema Core 8.2.1](https://json-schema.org/draft/2020-12/json-schema-core#section-8.2.1)).
 
+### Merge and override model
+
+JSON Schema's validation algebra is purely conjunctive: `allOf` requires an instance to satisfy every subschema, and the specification defines no merge of the subschemas' keyword *values* ([JSON Schema Core 10.2.1.1](https://json-schema.org/draft/2020-12/json-schema-core#section-10.2.1.1)). Several consumers nonetheless require a single *resolved* view of a composed schema rather than a conjunction: a UI generator needs exactly one `title` per field, a code generator flattens an inheritance chain into one class, and an OO-LD preprocessor must produce one `@context`.
+
+When such a merge is required, OO-LD resolves the `allOf` chain by applying **JSON Merge Patch ([RFC 7386](https://www.rfc-editor.org/rfc/rfc7386)) semantics**: keyed by object member, most-recently-defined (most-derived) wins, and a `null` value removes a key. For the `@context` this coincides with JSON-LD's own override rule ("Duplicate context terms are overridden using a most-recently-defined-wins mechanism", [JSON-LD 1.1, 4.1.5](https://www.w3.org/TR/json-ld11/#advanced-context-usage)). For assertion-bearing keywords the resolved view additionally honors **narrow-only** composition: a derived schema MAY restrict a constraint but MUST NOT relax it, matching how code generators let a subclass tighten - never loosen - a superclass property's validation.
+
+This single model governs every place OO-LD collapses composition into a resolved value: single-valued annotations such as `title` and `x-oold-multilang-title` resolve most-derived-wins, constraints resolve narrow-only, and additive maps merge by key. A preprocessor applying it produces exactly the view that UI and code generators already compute, so no separate "resolved schema" format is needed.
+
 ## Schema Instances
 
 An OO-LD instance is a JSON document that conforms to an OO-LD schema. It references that schema in two ways, both pointing at the same (preferably versioned) schema URL:
