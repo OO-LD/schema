@@ -133,6 +133,8 @@ Note the asymmetry between how schemas and instances are consumed:
 
 This asymmetry is what lets a single document serve both as a JSON Schema `$ref` target and as a JSON-LD remote `@context` for the same resource. Concretely: an instance is processed directly as a JSON-LD document (e.g. `jsonld.toRDF(instance)`), which loads the schema as a remote context via the instance's `@context`; a schema is only ever referenced as that context and MUST NOT itself be expanded as a document (`jsonld.toRDF(schema)` would wrongly apply the schema's own `@context` to it).
 
+The diagram below shows **inheritance**: Class B extends Class A by referencing it in both `allOf` (so JSON-Schema validators apply A's rules when validating B instances) and `@context` (so JSON-LD processors resolve A's term mappings). B instances are therefore valid A instances and carry all of A's properties alongside B's own additions.
+
 ```mermaid
 %%{init: {'theme': 'neutral' } }%%
 classDiagram
@@ -165,6 +167,8 @@ classDiagram
 You can read how this is implemented in OpenSemanticWorld/Lab in the [introduction](https://opensemantic.world/wiki/Item:OSWdb485a954a88465287b341d2897a84d6) and [schema documentation draft](https://opensemantic.world/wiki/Item:OSWab674d663a5b472f838d8e1eb43e6784).
 
 ## Composition
+
+Composition is how an OO-LD schema incorporates multiple independent schemas, each contributing its own properties and JSON-LD term mappings, without requiring a shared parent class. This lets you build complex types by assembling reusable building blocks - for example, attaching a geolocation schema and a contact schema to a single resource type. The rules below govern how the resulting `@context` is assembled automatically, so that no post-processing step is needed.
 
 It MUST NOT be required to further process an OO-LD Schema document in order to interpret it as JSON-LD context. This implies that all occurrences of `$ref` in the schema are reflected in the JSON-LD context. `$ref` within properties of `type: object` MUST be listed as scoped JSON-LD context. `$ref` within all other property types and at the root level of the OO-LD schema MUST be listed at the root level of the JSON-LD context. In case of multiple `$ref` within `allOf` the corresponding remote contexts are merged into an array-valued `@context` (see [Merging remote contexts](#merging-remote-contexts)). 
 For `oneOf` / `anyOf` this requires care to avoid conflicts (see [Merging remote contexts](#merging-remote-contexts)).
@@ -413,6 +417,24 @@ x-oold-uuid: b5203131-7321-46bb-8a11-acb3d1015840
 title: Foo
 ```
 
+## Ontology class IRI (`x-oold-iri`)
+
+`x-oold-iri` declares the IRI of the ontology class that this schema realizes - the RDF/OWL class from an external vocabulary that gives the schema its semantic grounding. It is distinct from two related IRIs:
+
+- `$id` - the URL of the schema document (where to fetch it). A schema document is a retrievable artifact, not an OWL class.
+- `x-oold-instance-rdf-type` - the rdf:types that instances carry on export (see [Carrying the semantic type](#carrying-the-semantic-type)). These are stamped onto instance data; `x-oold-iri` describes the schema itself.
+
+```yaml
+$id: https://example.org/my-package/1.0.0/Person.schema.json
+x-oold-iri: https://schema.org/Person
+x-oold-instance-rdf-type: ["schema:Person"]
+title: Person
+```
+
+In this example, the schema document is fetched from the `$id` URL, it realizes the ontology class `schema:Person`, and instances exported to RDF carry `@type: schema:Person`. The most common case is that `x-oold-iri` and the entries in `x-oold-instance-rdf-type` resolve to the same IRI, but they may differ - for example when a schema models a more specific subclass inline while still emitting a broader rdf:type on instances.
+
+OO-LD-aware tooling uses `x-oold-iri` to anchor the schema in an ontology graph, independently of where the schema document is hosted - for example to resolve super-classes, look up ontology annotations, or generate SHACL shapes.
+
 ## Versioning
 
 see also
@@ -497,11 +519,11 @@ The `x-oold-*` keywords are:
 | `x-oold-uuid` | Stable UUID identifying the schema across versions and locations |
 | `x-oold-version` / `x-oold-prior-version` | Semantic version of the schema, and its predecessor |
 | `x-oold-backward-compatible-with` / `x-oold-incompatible-with` | URIs of prior versions this schema is / is not compatible with |
-| `x-oold-iri` | Ontology IRI denoting the class described by the schema |
-| `x-oold-instance-rdf-type` | rdf:type(s) instances carry, as a list of IRIs; materialized as `@type` on export |
-| `x-oold-range` | Type constraint on an IRI-valued property (IRI, array of IRIs, or an OO-LD subschema) |
-| `x-oold-ref` | Reference to another OO-LD schema, resolved only by OO-LD-aware tools (use instead of `$ref` inside `x-oold-range`) |
-| `x-oold-multilang-title` / `x-oold-multilang-description` | Translations of `title` / `description` keyed by BCP-47 language tag |
+| `x-oold-iri` | [Ontology IRI denoting the class described by the schema](#ontology-class-iri-x-oold-iri) |
+| `x-oold-instance-rdf-type` | [rdf:type(s) instances carry, as a list of IRIs; materialized as `@type` on export](#carrying-the-semantic-type) |
+| `x-oold-range` | [Type constraint on an IRI-valued property (IRI, array of IRIs, or an OO-LD subschema)](#range-of-properties) |
+| `x-oold-ref` | [Reference to another OO-LD schema, resolved only by OO-LD-aware tools (use instead of `$ref` inside `x-oold-range`)](#why-x-oold-ref-and-not-ref) |
+| `x-oold-multilang-title` / `x-oold-multilang-description` | [Translations of `title` / `description` keyed by BCP-47 language tag](#localizing-schema-annotations) |
 | `x-oold-reverse-properties` / `x-oold-reverse-required` / `x-oold-reverse-default-properties` | Reverse-property definitions (see [Reverse properties](#reverse-properties)) |
 
 ## Standard extensions
